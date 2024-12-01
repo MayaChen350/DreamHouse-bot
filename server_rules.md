@@ -10,6 +10,7 @@
 9. There are **minors** in the server. Act in consequence **in good ways.**
 10. I'll ask you to **refrain** from **sending any, slightly or not, NSFW gifs**,  **images**, **video** or **file** in the server. **Consequences might occur.**
 11. **Don't talk about** any **members** who are **banned.** If they are banned for most it's most probably because I don't want to hear about them again.
+12. No talk about drugs. Whether illegal, prescribed, medecinal, or whatever this is still a triggering subject.
 
 
 Additional notes you should know:
