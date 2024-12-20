@@ -10,6 +10,13 @@
 |----------|-----------|--------------------------|
 | Hello    |           | A 'Hello World' command. |
 
+## Moderation
+| Commands | Arguments            | Description            |
+|----------|----------------------|------------------------|
+| ban      | User, Reason         | Ban someone annoying.  |
+| kick     | User, Reason         | Kick someone annoying. |
+| mute     | User, Amount, Reason | Mute someone annoying. |
+
 ## Utility
 | Commands | Arguments | Description             |
 |----------|-----------|-------------------------|
