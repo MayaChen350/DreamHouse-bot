@@ -1,24 +1,71 @@
-# TODOs
+# TODOs 0.2.0
+
+## Features
+
+### Commands
+- [ ] /ban @user @reason
+- [ ] /kick @user @reason
+- [ ] /mute @user @timeout_time @reason
+
+## Enhancement
+
+### Server implementations
+- [ ] Role channel
+
+# TODOs 0.3.0
+
+## Features
+
+### Server implementations
+- [ ] Logs
+  - [ ] deleted messages
+  - [ ] edited messages
+  - [ ] Moderation logs
+
+# TODOs 0.4.0
+
+## Features
+
+### Commands
+- [ ] /warn @user @reason
+- [ ] /warns @user
+- [ ] /modlogs @user
+
+### Bot implementations
+- [ ] Moderation logs database
+  - [ ] warns
+  - [ ] kicks/bans
+  - [ ] total of messages deleted by admins
+
+# TODOs 0.5.0
+
+## Features
+
+### Server implementations
+- [ ] Anti-NSFW system
+
+# TODOs 0.6.0
+
+## Features
+
+### Server implementations
+- [ ] Automate #rules
+
+# TODOs 1.0.0 (RELEASE)
+
+## Features
+
+### Server implementations
+- [ ] Welcome message
+
+# TODOs 1.1.0
 
 ## Features
 
 ### Bot implementations
-- [ ] Moderation logs database  
-  - [ ] warns
-  - [ ] kicks/bans
-  - [ ] total of messages deleted by admins
-- [ ] Connection to the random dog and random cat API
-
-### Utility commands
-- [ ] /ban @user @reason  
-- [ ] /kick @user @reason  
-- [ ] /mute @user @timeout_time @reason
-- [ ] /warn @user @reason  
-- [ ] /warns @user  
-- [ ] /dog  
-- [ ] /cat
+- [ ] Connection to a furina api or smth
 
 ### Server implementations
-- [ ] Role channel
-- [ ] Welcome message
-- [ ] Anti-NSFW system
+- [ ] QOTD
+- [ ] /furina
+- [ ] Tonight's program
