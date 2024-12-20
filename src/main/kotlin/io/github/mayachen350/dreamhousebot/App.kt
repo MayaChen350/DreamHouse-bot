@@ -6,20 +6,19 @@ import dev.kord.gateway.PrivilegedIntent
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.mayachen350.dreamhousebot.features.handler.moderationCommands
 import io.github.mayachen350.dreamhousebot.features.handler.roleMessageListeners
+import io.github.mayachen350.dreamhousebot.utils.BotException
+import io.github.mayachen350.dreamhousebot.utils.cmdErrorHandling
+import me.jakejmattson.discordkt.arguments.IntegerArg
 import me.jakejmattson.discordkt.commands.commands
 import me.jakejmattson.discordkt.dsl.bot
+import me.jakejmattson.discordkt.locale.Language
 
 @OptIn(PrivilegedIntent::class)
 fun main() {
     val token = Dotenv.load().get("BOT_TOKEN")
 
     bot(token) {
-        prefix { "+" }
-
         configure {
-            //Allow slash commands to be invoked as text commands.
-            dualRegistry = true
-
             //Remove a command invocation message after the command is executed.
             deleteInvocation = false
 
@@ -29,6 +28,8 @@ fun main() {
             //Configure the Discord Gateway intents for your bot.
             intents = Intents.ALL
         }
+
+        presence { state = "Real" }
     }
 
     // Register those commands groups:
@@ -39,6 +40,7 @@ fun main() {
     roleMessageListeners()
 }
 
+// I use this command a lot for testing
 fun helloWorld() = commands("Basics") {
     slash("Hello", "A 'Hello World' command.") {
         execute {
