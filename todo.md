@@ -3,9 +3,9 @@
 ## Features
 
 ### Commands
-- [ ] /ban @user @reason
-- [ ] /kick @user @reason
-- [ ] /mute @user @timeout_time @reason
+- [X] /ban @user @reason
+- [X] /kick @user @reason
+- [X] /mute @user @timeout_time @reason
 
 ## Enhancement
 

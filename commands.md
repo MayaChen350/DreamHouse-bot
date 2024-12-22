@@ -11,11 +11,12 @@
 | Hello    |           | A 'Hello World' command. |
 
 ## Moderation
-| Commands | Arguments            | Description            |
-|----------|----------------------|------------------------|
-| ban      | User, Reason         | Ban someone annoying.  |
-| kick     | User, Reason         | Kick someone annoying. |
-| mute     | User, Amount, Reason | Mute someone annoying. |
+| Commands | Arguments          | Description                  |
+|----------|--------------------|------------------------------|
+| ban      | user, reason       | Ban someone annoying.        |
+| kick     | user, reason       | Kick someone annoying.       |
+| mute     | user, time, reason | Mute someone annoying.       |
+| purge    | number_of_message  | Delete a number of messages. |
 
 ## Utility
 | Commands | Arguments | Description             |

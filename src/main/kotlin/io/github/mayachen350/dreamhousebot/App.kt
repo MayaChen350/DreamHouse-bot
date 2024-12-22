@@ -6,9 +6,6 @@ import dev.kord.gateway.PrivilegedIntent
 import io.github.cdimascio.dotenv.Dotenv
 import io.github.mayachen350.dreamhousebot.features.handler.moderationCommands
 import io.github.mayachen350.dreamhousebot.features.handler.roleMessageListeners
-import io.github.mayachen350.dreamhousebot.utils.BotException
-import io.github.mayachen350.dreamhousebot.utils.cmdErrorHandling
-import me.jakejmattson.discordkt.arguments.IntegerArg
 import me.jakejmattson.discordkt.commands.commands
 import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.locale.Language
@@ -19,6 +16,8 @@ fun main() {
 
     bot(token) {
         configure {
+            configs = data("configs/bot_configs.json") { Configs() }
+
             //Remove a command invocation message after the command is executed.
             deleteInvocation = false
 
@@ -30,6 +29,11 @@ fun main() {
         }
 
         presence { state = "Real" }
+
+        //Configure the locale for this bot.
+        localeOf(Language.EN.locale) {
+            notFound = "Nothing found!"
+        }
     }
 
     // Register those commands groups:
