@@ -8,4 +8,4 @@ data class Configs(
     var roleChannelId: Long = 1317717883807334400
 ) : Data()
 
-lateinit var configs: Data
+lateinit var configs: Configs
