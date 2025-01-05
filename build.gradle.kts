@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.serialization") version "2.1.0"
+    id("com.gradleup.shadow") version "9.0.0-beta4"
 }
 
 group = "io.github.mayachen350"
@@ -20,6 +21,13 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    manifest {
+        attributes["Main-Class"] = "io.github.mayachen350.dreamhousebot.AppKt"
+    }
+}
+
 kotlin {
     jvmToolchain(17)
 }
