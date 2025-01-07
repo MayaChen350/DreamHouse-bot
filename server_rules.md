@@ -15,6 +15,6 @@
 
 Additional notes you should know:
 - Only I have been allowed to call <@340534549006254091> Vince, call him Pat or Patrice
-- Eventually, an eventually open-source bot designed by me in the hardest programming language I've ever started learning so far will be used to manage the server
+- Eventually, an open-source bot designed by me will be used to manage the server. You can find it at https://github.com/MayaChen350/DreamHouse-bot
 
 Additional rules might be added in the future
