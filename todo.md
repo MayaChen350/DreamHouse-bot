@@ -10,7 +10,7 @@
 ## Enhancement
 
 ### Server implementations
-- [ ] Role channel
+- [X] Role channel
 
 # TODOs 0.3.0
 
