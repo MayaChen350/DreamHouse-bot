@@ -38,6 +38,8 @@ suspend fun kickCmdLogic(interaction: GuildApplicationCommandInteraction, args: 
     punishMemberLogic(interaction, args, "kicked") {
         kick(reason = args.second)
     }
+
+    logModPunishment(interaction, "Kicked", args.second, args.first)
 }
 
 suspend fun banCmdLogic(interaction: GuildApplicationCommandInteraction, args: Args2<Member, String>): Unit {
@@ -47,6 +49,8 @@ suspend fun banCmdLogic(interaction: GuildApplicationCommandInteraction, args: A
             deleteMessageDuration = 7.toDuration(DurationUnit.DAYS)
         }
     }
+
+    logModPunishment(interaction, "Banned", args.second, args.first)
 }
 
 suspend fun muteCmdLogic(interaction: GuildApplicationCommandInteraction, args: Args3<Member, Int, String>): Unit {
@@ -57,6 +61,8 @@ suspend fun muteCmdLogic(interaction: GuildApplicationCommandInteraction, args: 
             reason = args.third
         }
     }
+
+    logModPunishment(interaction, "Muted", args.third, args.first, "For ${args.second}")
 }
 
 suspend fun purgeCmdLogic(interaction: GuildApplicationCommandInteraction, args: Args1<Int>): Unit {
@@ -74,5 +80,10 @@ suspend fun purgeCmdLogic(interaction: GuildApplicationCommandInteraction, args:
         }
 
         respondEphemeral { content = "$numberOfMessages messages have been successfully deleted!" }
+    }
+
+    dreamhouseLog(interaction) {
+        title = "Deleted $numberOfMessages messages."
+        description = "in <#${interaction.channel.id.value}>"
     }
 }
