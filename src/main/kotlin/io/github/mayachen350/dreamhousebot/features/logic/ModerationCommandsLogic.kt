@@ -82,7 +82,7 @@ suspend fun purgeCmdLogic(interaction: GuildApplicationCommandInteraction, args:
         respondEphemeral { content = "$numberOfMessages messages have been successfully deleted!" }
     }
 
-    dreamhouseLog(interaction) {
+    logSmth(interaction.getGuild(), interaction.user) {
         title = "Deleted $numberOfMessages messages."
         description = "in <#${interaction.channel.id.value}>"
     }

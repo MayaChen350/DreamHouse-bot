@@ -13,7 +13,10 @@ class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val remo
     /** Abstraction class making using both type of events easier by sharing common properties and methods. **/
     private inner class ReactionEvent(addEvent: ReactionAddEvent?, removeEvent: ReactionRemoveEvent?) {
         val emoji = addEvent?.emoji ?: removeEvent!!.emoji
+        val guild = addEvent?.guild ?: removeEvent!!.guild
         suspend fun getMessage() = addEvent?.getMessage() ?: removeEvent!!.getMessage()
+        suspend fun getUserAsMember() = addEvent?.getUserAsMember() ?: removeEvent!!.getUserAsMember()
+        suspend fun getUser() = addEvent?.getUser() ?: removeEvent!!.getUser()
         suspend fun getRole(id: Snowflake) =
             addEvent?.getGuildOrNull()?.getRole(id) ?: removeEvent!!.getGuildOrNull()!!.getRole(id)
     }
@@ -28,8 +31,19 @@ class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val remo
             val roleFoundId: Snowflake? = findRole()
 
             // Give/Remove the user role based on the emoji
-            if (roleFoundId != null)
-                toggleMemberRole(roleFoundId);
+            if (roleFoundId != null) {
+                toggleMemberRole(roleFoundId)
+                logSmth(event.guild!!, event.getUser()) {
+                    suspend {
+                        dreamhouseEmbedLogDefault(event.getUser())
+
+                        title =
+                            if (addEvent != null) "Role added via the role channel"
+                            else "Role removed via the role channel"
+                        description = "Role: ${event.getRole(roleFoundId).mention}"
+                    }
+                }
+            }
         }
     }
 
@@ -66,9 +80,6 @@ class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val remo
 
     /** Toggle the role in parameter depending on if the event is a ReactionAddEvent or a ReactionRemoveEvent. **/
     private suspend fun toggleMemberRole(roleId: Snowflake): Unit {
-        if (addEvent != null)
-            addEvent.getUserAsMember()?.addRole(roleId)
-        else
-            removeEvent!!.getUserAsMember()?.removeRole(roleId)
+        event.getUserAsMember()?.removeRole(roleId)
     }
 }

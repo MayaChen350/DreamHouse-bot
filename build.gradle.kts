@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.serialization") version "2.1.0"
@@ -5,7 +8,11 @@ plugins {
 }
 
 group = "io.github.mayachen350"
-version = "0.1.0"
+version = Properties().run {
+    load(FileInputStream("src/main/resources/bot.properties"))
+    getProperty("version")
+}
+description = "Official bot of the DreamHouse Discord Server."
 
 repositories {
     mavenCentral()

@@ -1,11 +1,14 @@
 package io.github.mayachen350.dreamhousebot.features.handler
 
-import dev.kord.common.entity.AuditLogEvent
-import dev.kord.core.event.Event
-import me.jakejmattson.discordkt.dsl.listeners
-
 //fun logsEventListener() = listeners {
-//    on<Event> {
-//
+//    on<GuildAuditLogEntryCreateEvent> {
+//        with(kord.getChannel(configs.logChannelId.toSnowflake())) {
+//            if (this != null)
+//                asChannelOf<MessageChannel>().run {
+//                    auditLogLog(auditLogEntry)
+//                }
+//            else
+//                println("Could not log the audit log! Log channelId undefined or with invalid id.")
+//        }
 //    }
 //}

@@ -1,3 +1,8 @@
 @echo off
-javaw -jar .\build\libs\DreamHouse-bot-0.1.0-all.jar
+for %%i in (.\build\libs\DreamHouse-bot-*-all.jar) do (
+    java -jar %%i
+    echo "Bot disconnected"
+    goto :BREAK
+)
+:BREAK
 pause
