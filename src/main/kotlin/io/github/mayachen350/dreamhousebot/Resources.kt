@@ -13,9 +13,9 @@ object Resources {
     }
 
     enum class Logs {
-        TITLE {
+        AUDIT_LOGS {
             override fun load(prop: String): String {
-                return loadPropertiesFromFile("src/main/resources/logs/title.properties", prop)
+                return loadPropertiesFromFile("src/main/resources/logs/auditLogs.properties", prop)
             }
         };
 

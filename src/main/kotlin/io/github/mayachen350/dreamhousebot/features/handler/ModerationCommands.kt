@@ -2,8 +2,6 @@ package io.github.mayachen350.dreamhousebot.features.handler
 
 import dev.kord.common.entity.Permission
 import dev.kord.common.entity.Permissions
-import dev.kord.core.cache.data.EmbedData
-import dev.kord.core.entity.Embed
 import io.github.mayachen350.dreamhousebot.features.logic.banCmdLogic
 import io.github.mayachen350.dreamhousebot.features.logic.kickCmdLogic
 import io.github.mayachen350.dreamhousebot.features.logic.muteCmdLogic
@@ -19,7 +17,7 @@ fun moderationCommands() = commands(
 ) {
 
     val memberToBePunishedArg = MemberArg("user", "User to be punished.")
-    val reasonPunisment = AnyArg("reason", "The reason of the punishment.")
+    val reasonPunishment = AnyArg("reason", "The reason of the punishment.")
     val timeoutPunishmentArg = TimeArg("time", "How long the punishment last.")
 
 
@@ -27,7 +25,7 @@ fun moderationCommands() = commands(
         "kick", "Kick someone annoying.",
         requiredPermissions = Permissions(Permission.KickMembers)
     ) {
-        execute(memberToBePunishedArg, reasonPunisment) {
+        execute(memberToBePunishedArg, reasonPunishment) {
             kickCmdLogic(this.interaction!!, this.args)
         }
     }
@@ -36,7 +34,7 @@ fun moderationCommands() = commands(
         "ban", "Ban someone annoying.",
         requiredPermissions = Permissions(Permission.BanMembers)
     ) {
-        execute(memberToBePunishedArg, reasonPunisment) {
+        execute(memberToBePunishedArg, reasonPunishment) {
             banCmdLogic(this.interaction!!, this.args)
         }
     }
@@ -45,7 +43,7 @@ fun moderationCommands() = commands(
         "mute", "Mute someone annoying.",
         requiredPermissions = Permissions(Permission.ModerateMembers)
     ) {
-        execute(memberToBePunishedArg, timeoutPunishmentArg, reasonPunisment) {
+        execute(memberToBePunishedArg, timeoutPunishmentArg, reasonPunishment) {
             muteCmdLogic(this.interaction!!, args = this.args)
         }
     }
