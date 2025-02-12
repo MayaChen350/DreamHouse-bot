@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Gradle Build Action
-      uses: gradle/gradle-build-action@v3.5.0
+      uses: gradle/actions/setup-gradle@v3
