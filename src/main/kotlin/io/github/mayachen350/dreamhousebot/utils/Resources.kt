@@ -1,4 +1,4 @@
-package io.github.mayachen350.dreamhousebot
+package io.github.mayachen350.dreamhousebot.utils
 
 import java.io.FileInputStream
 import java.util.*

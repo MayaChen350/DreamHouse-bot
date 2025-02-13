@@ -17,10 +17,10 @@
 ## Features
 
 ### Server implementations
-- [ ] Logs
-  - [ ] deleted messages
-  - [ ] edited messages
-  - [ ] Moderation logs
+- [X] Logs
+  - ~~[ ] deleted messages~~ Cancelled until really necessary
+  - [X] edited messages
+  - [X] Moderation logs
 
 # TODOs 0.4.0
 

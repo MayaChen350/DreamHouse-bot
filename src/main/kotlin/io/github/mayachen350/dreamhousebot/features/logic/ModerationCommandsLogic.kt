@@ -7,7 +7,7 @@ import dev.kord.core.behavior.interaction.respondEphemeral
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.entity.Member
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
-import io.github.mayachen350.dreamhousebot.Resources
+import io.github.mayachen350.dreamhousebot.utils.Resources
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList

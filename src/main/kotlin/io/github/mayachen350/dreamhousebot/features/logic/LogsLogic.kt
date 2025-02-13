@@ -5,13 +5,15 @@ import dev.kord.core.behavior.GuildBehavior
 import dev.kord.core.behavior.channel.asChannelOf
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.AuditLogEntry
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.effectiveName
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
+import dev.kord.core.event.message.MessageUpdateEvent
 import dev.kord.rest.builder.message.EmbedBuilder
-import io.github.mayachen350.dreamhousebot.Resources
 import io.github.mayachen350.dreamhousebot.configs
+import io.github.mayachen350.dreamhousebot.utils.Resources
 import kotlinx.datetime.Clock
 import me.jakejmattson.discordkt.util.addField
 import me.jakejmattson.discordkt.util.toSnowflake
@@ -51,7 +53,7 @@ fun EmbedBuilder.dreamhouseEmbedLogDefault(displayedUser: User?) {
  *  @param embedExtra Extra embed things to add for functions or anonymous functions.**/
 suspend fun logSmth(
     guild: GuildBehavior,
-    displayedUser: User,
+    displayedUser: User?,
     embedExtra: EmbedBuilder.() -> Unit = { },
 ): Unit {
     with(guild.getChannelOrNull(configs.logChannelId.toSnowflake())) {
@@ -86,6 +88,29 @@ suspend fun logModPunishment(
             name = "Punishment by:",
             value = interaction.user.username
         )
+    }
+}
+
+// Unused for now
+//suspend fun logDeletedMessage(
+//    event: MessageDeleteEvent
+//) {
+//    val message: Message? = event.message
+//    logSmth(event.guild!!, message?.author) {
+//        dreamhouseEmbedLogDefault(message?.author)
+//        title = "Message deleted"
+//        description = message?.content ?: "message id:"
+//    }
+//}
+
+suspend fun logEditedMessage(
+    event: MessageUpdateEvent
+) {
+    val message: Message = event.getMessage()
+    logSmth(message.getGuild(), message.author) {
+        dreamhouseEmbedLogDefault(message.author)
+        title = "Message edited"
+        description = (event.old?.content ?: "Impossible to fetch") + "->" + message.content
     }
 }
 
