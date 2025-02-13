@@ -132,57 +132,200 @@ suspend fun MessageChannel.auditLogLog(auditLogEntry: AuditLogEntry) {
             }
 
             AuditLogEvent.ChannelCreate -> {
-
+                title = resLoad("channel_create_title")
             }
 
-            AuditLogEvent.ChannelDelete -> TODO()
-            AuditLogEvent.ChannelOverwriteCreate -> TODO()
-            AuditLogEvent.ChannelOverwriteDelete -> TODO()
-            AuditLogEvent.ChannelOverwriteUpdate -> TODO()
-            AuditLogEvent.ChannelUpdate -> TODO()
-            AuditLogEvent.CreatorMonetizationRequestCreated -> TODO()
-            AuditLogEvent.CreatorMonetizationTermsAccepted -> TODO()
-            AuditLogEvent.EmojiCreate -> TODO()
-            AuditLogEvent.EmojiDelete -> TODO()
-            AuditLogEvent.EmojiUpdate -> TODO()
-            AuditLogEvent.GuildScheduledEventCreate -> TODO()
-            AuditLogEvent.GuildScheduledEventDelete -> TODO()
-            AuditLogEvent.GuildScheduledEventUpdate -> TODO()
-            AuditLogEvent.GuildUpdate -> TODO()
-            AuditLogEvent.IntegrationCreate -> TODO()
-            AuditLogEvent.IntegrationDelete -> TODO()
-            AuditLogEvent.IntegrationUpdate -> TODO()
-            AuditLogEvent.InviteCreate -> TODO()
-            AuditLogEvent.InviteDelete -> TODO()
-            AuditLogEvent.InviteUpdate -> TODO()
-            AuditLogEvent.MemberBanAdd -> TODO()
-            AuditLogEvent.MemberBanRemove -> TODO()
-            AuditLogEvent.MemberDisconnect -> TODO()
-            AuditLogEvent.MemberKick -> TODO()
-            AuditLogEvent.MemberMove -> TODO()
-            AuditLogEvent.MemberPrune -> TODO()
-            AuditLogEvent.MemberRoleUpdate -> TODO()
-            AuditLogEvent.MemberUpdate -> TODO()
-            AuditLogEvent.MessageBulkDelete -> TODO()
-            AuditLogEvent.MessageDelete -> TODO()
-            AuditLogEvent.MessagePin -> TODO()
-            AuditLogEvent.MessageUnpin -> TODO()
-            AuditLogEvent.RoleCreate -> TODO()
-            AuditLogEvent.RoleDelete -> TODO()
-            AuditLogEvent.RoleUpdate -> TODO()
-            AuditLogEvent.StageInstanceCreate -> TODO()
-            AuditLogEvent.StageInstanceDelete -> TODO()
-            AuditLogEvent.StageInstanceUpdate -> TODO()
-            AuditLogEvent.StickerCreate -> TODO()
-            AuditLogEvent.StickerDelete -> TODO()
-            AuditLogEvent.StickerUpdate -> TODO()
-            AuditLogEvent.ThreadCreate -> TODO()
-            AuditLogEvent.ThreadDelete -> TODO()
-            AuditLogEvent.ThreadUpdate -> TODO()
-            is AuditLogEvent.Unknown -> TODO()
-            AuditLogEvent.WebhookCreate -> TODO()
-            AuditLogEvent.WebhookDelete -> TODO()
-            AuditLogEvent.WebhookUpdate -> TODO()
+            AuditLogEvent.ChannelDelete -> {
+                title = resLoad("channel_delete_title")
+            }
+
+            AuditLogEvent.ChannelOverwriteCreate -> {
+                title = resLoad("channel_overwrite_create_title")
+            }
+
+            AuditLogEvent.ChannelOverwriteDelete -> {
+                title = resLoad("channel_overwrite_delete_title")
+            }
+
+            AuditLogEvent.ChannelOverwriteUpdate -> {
+                title = resLoad("channel_overwrite_update_title")
+            }
+
+            AuditLogEvent.ChannelUpdate -> {
+                title = resLoad("channel_update_title")
+            }
+
+            AuditLogEvent.CreatorMonetizationRequestCreated -> {
+                title = resLoad("creator_monetization_request_created_title")
+            }
+
+            AuditLogEvent.CreatorMonetizationTermsAccepted -> {
+                title = resLoad("creator_monetization_terms_accepted_title")
+            }
+
+            AuditLogEvent.EmojiCreate -> {
+                title = resLoad("emoji_create_title")
+            }
+
+            AuditLogEvent.EmojiDelete -> {
+                title = resLoad("emoji_delete_title")
+            }
+
+            AuditLogEvent.EmojiUpdate -> {
+                title = resLoad("emoji_update_title")
+            }
+
+            AuditLogEvent.GuildScheduledEventCreate -> {
+                title = resLoad("guild_scheduled_event_create_title")
+            }
+
+            AuditLogEvent.GuildScheduledEventDelete -> {
+                title = resLoad("guild_scheduled_event_delete_title")
+            }
+
+            AuditLogEvent.GuildScheduledEventUpdate -> {
+                title = resLoad("guild_scheduled_event_update_title")
+            }
+
+            AuditLogEvent.GuildUpdate -> {
+                title = resLoad("guild_update_title")
+            }
+
+            AuditLogEvent.IntegrationCreate -> {
+                title = resLoad("integration_create_title")
+            }
+
+            AuditLogEvent.IntegrationDelete -> {
+                title = resLoad("integration_delete_title")
+            }
+
+            AuditLogEvent.IntegrationUpdate -> {
+                title = resLoad("integration_update_title")
+            }
+
+            AuditLogEvent.InviteCreate -> {
+                title = resLoad("invite_create_title")
+            }
+
+            AuditLogEvent.InviteDelete -> {
+                title = resLoad("invite_delete_title")
+            }
+
+            AuditLogEvent.InviteUpdate -> {
+                title = resLoad("invite_update_title")
+            }
+
+            AuditLogEvent.MemberBanAdd -> {
+                title = resLoad("member_ban_add_title")
+            }
+
+            AuditLogEvent.MemberBanRemove -> {
+                title = resLoad("member_ban_remove_title")
+            }
+
+            AuditLogEvent.MemberDisconnect -> {
+                title = resLoad("member_disconnect_title")
+            }
+
+            AuditLogEvent.MemberKick -> {
+                title = resLoad("member_kick_title")
+            }
+
+            AuditLogEvent.MemberMove -> {
+                title = resLoad("member_move_title")
+            }
+
+            AuditLogEvent.MemberPrune -> {
+                title = resLoad("member_prune_title")
+            }
+
+            AuditLogEvent.MemberRoleUpdate -> {
+                title = resLoad("member_role_update_title")
+            }
+
+            AuditLogEvent.MemberUpdate -> {
+                title = resLoad("member_update_title")
+            }
+
+            AuditLogEvent.MessageBulkDelete -> {
+                title = resLoad("message_bulk_delete_title")
+            }
+
+            AuditLogEvent.MessageDelete -> {
+                title = resLoad("message_delete_title")
+            }
+
+            AuditLogEvent.MessagePin -> {
+                title = resLoad("message_pin_title")
+            }
+
+            AuditLogEvent.MessageUnpin -> {
+                title = resLoad("message_unpin_title")
+            }
+
+            AuditLogEvent.RoleCreate -> {
+                title = resLoad("role_create_title")
+            }
+
+            AuditLogEvent.RoleDelete -> {
+                title = resLoad("role_delete_title")
+            }
+
+            AuditLogEvent.RoleUpdate -> {
+                title = resLoad("role_update_title")
+            }
+
+            AuditLogEvent.StageInstanceCreate -> {
+                title = resLoad("stage_instance_create_title")
+            }
+
+            AuditLogEvent.StageInstanceDelete -> {
+                title = resLoad("stage_instance_delete_title")
+            }
+
+            AuditLogEvent.StageInstanceUpdate -> {
+                title = resLoad("stage_instance_update_title")
+            }
+
+            AuditLogEvent.StickerCreate -> {
+                title = resLoad("sticker_create_title")
+            }
+
+            AuditLogEvent.StickerDelete -> {
+                title = resLoad("sticker_delete_title")
+            }
+
+            AuditLogEvent.StickerUpdate -> {
+                title = resLoad("sticker_update_title")
+            }
+
+            AuditLogEvent.ThreadCreate -> {
+                title = resLoad("thread_create_title")
+            }
+
+            AuditLogEvent.ThreadDelete -> {
+                title = resLoad("thread_delete_title")
+            }
+
+            AuditLogEvent.ThreadUpdate -> {
+                title = resLoad("thread_update_title")
+            }
+
+            is AuditLogEvent.Unknown -> {
+                title = resLoad("unknown_title")
+            }
+
+            AuditLogEvent.WebhookCreate -> {
+                title = resLoad("webhook_create_title")
+            }
+
+            AuditLogEvent.WebhookDelete -> {
+                title = resLoad("webhook_delete_title")
+            }
+
+            AuditLogEvent.WebhookUpdate -> {
+                title = resLoad("webhook_update_title")
+            }
         }
         description = "Smth smth ${auditLogEntry.changes.map { it.new.toString() }}"
     }
