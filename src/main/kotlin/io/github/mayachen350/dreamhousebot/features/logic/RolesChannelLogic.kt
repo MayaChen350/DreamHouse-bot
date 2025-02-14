@@ -34,14 +34,12 @@ class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val remo
             if (roleFoundId != null) {
                 toggleMemberRole(roleFoundId)
                 logSmth(event.guild!!, event.getUser()) {
-                    suspend {
-                        dreamhouseEmbedLogDefault(event.getUser())
+                    dreamhouseEmbedLogDefault(event.getUser())
 
-                        title =
-                            if (addEvent != null) "Role added via the role channel"
-                            else "Role removed via the role channel"
-                        description = "Role: ${event.getRole(roleFoundId).mention}"
-                    }
+                    title =
+                        if (addEvent != null) "Role added via the role channel"
+                        else "Role removed via the role channel"
+                    description = "Role: ${event.getRole(roleFoundId).mention}"
                 }
             }
         }
@@ -80,6 +78,9 @@ class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val remo
 
     /** Toggle the role in parameter depending on if the event is a ReactionAddEvent or a ReactionRemoveEvent. **/
     private suspend fun toggleMemberRole(roleId: Snowflake): Unit {
-        event.getUserAsMember()?.removeRole(roleId)
+        if (addEvent != null)
+            event.getUserAsMember()?.addRole(roleId)
+        else
+            event.getUserAsMember()?.removeRole(roleId)
     }
 }

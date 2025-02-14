@@ -54,7 +54,7 @@ fun EmbedBuilder.dreamhouseEmbedLogDefault(displayedUser: User?) {
 suspend fun logSmth(
     guild: GuildBehavior,
     displayedUser: User?,
-    embedExtra: EmbedBuilder.() -> Unit = { },
+    embedExtra: suspend EmbedBuilder.() -> Unit = { },
 ): Unit {
     with(guild.getChannelOrNull(configs.logChannelId.toSnowflake())) {
         if (this != null)
@@ -122,6 +122,8 @@ suspend fun MessageChannel.auditLogLog(auditLogEntry: AuditLogEntry) {
         dreamhouseEmbedLogDefault(auditLogEntry.userId?.let { kord.getUser(it) })
 
         fun resLoad(prop: String): String = Resources.Logs.AUDIT_LOGS.load(prop)
+
+        description = "Smth smth ${auditLogEntry.changes.map { it.new.toString() }}"
 
         when (auditLogEntry.actionType) {
             AuditLogEvent.ApplicationCommandPermissionUpdate -> {
@@ -352,6 +354,5 @@ suspend fun MessageChannel.auditLogLog(auditLogEntry: AuditLogEntry) {
                 title = resLoad("webhook_update_title")
             }
         }
-        description = "Smth smth ${auditLogEntry.changes.map { it.new.toString() }}"
     }
 }
