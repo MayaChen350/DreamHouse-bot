@@ -4,6 +4,7 @@ import dev.kord.gateway.ALL
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
 import io.github.cdimascio.dotenv.Dotenv
+import io.github.mayachen350.dreamhousebot.features.handler.logsEventListeners
 import io.github.mayachen350.dreamhousebot.features.handler.moderationCommands
 import io.github.mayachen350.dreamhousebot.features.handler.roleMessageListeners
 import me.jakejmattson.discordkt.commands.commands
@@ -42,6 +43,7 @@ fun main() {
 
     // Register those listeners:
     roleMessageListeners()
+    logsEventListeners()
 }
 
 // I use this command a lot for testing

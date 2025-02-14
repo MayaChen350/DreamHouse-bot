@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 - 2025-02-13
+
+### Added
+
+Bot stuff:
+
+- Logs:
+  - (Some kind of) Copy of the audit logs
+  - When using moderation commands
+  - When the role channel is used
+
+More technical stuff:
+
+- Run configs for IntelliJ IDEA
+- Properties files in the resources folder for the strings used by the bot
+
+### Changed
+
+More technical stuff:
+- The bot version is now located on resources/bot.properties **only**
+
 ## 0.2.0 - 2025-01-07
 
 ### Added

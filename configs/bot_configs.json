@@ -1,4 +1,5 @@
 {
     "type": "io.github.mayachen350.dreamhousebot.Configs",
-    "roleChannelId": 1317717883807334400
+    "roleChannelId": 1317717883807334400,
+    "logChannelId": 1326237540277157908
 }
