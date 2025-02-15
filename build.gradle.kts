@@ -1,5 +1,5 @@
 import java.io.FileInputStream
-import java.util.Properties
+import java.util.*
 
 plugins {
     kotlin("jvm") version "2.0.20"
@@ -22,10 +22,11 @@ dependencies {
     implementation("me.jakejmattson:DiscordKt:0.24.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0-RC")
-    testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
 }
 
-tasks.test {
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 

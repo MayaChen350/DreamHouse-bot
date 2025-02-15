@@ -10,6 +10,7 @@ import io.github.mayachen350.dreamhousebot.features.handler.roleMessageListeners
 import me.jakejmattson.discordkt.commands.commands
 import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.locale.Language
+import me.jakejmattson.discordkt.util.toSnowflake
 
 @OptIn(PrivilegedIntent::class)
 fun main() {
@@ -50,7 +51,7 @@ fun main() {
 fun helloWorld() = commands("Basics") {
     slash("Hello", "A 'Hello World' command.") {
         execute {
-            respondPublic("Hello World!")
+            interaction?.getGuild()?.getMember(1193018015445430324.toSnowflake())?.fetchUser()?.kord.toString().let { respondPublic(it) }
         }
     }
 }
