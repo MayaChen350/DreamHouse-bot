@@ -26,7 +26,7 @@ class RoleChannelSysTests : FunSpec ({
 
         context("An user chooses a correct reaction in the role channel") {
             test("Is the correct role given?") {
-
+                user.await().asMember(2L.toSnowflake())
             }
         }
     }
