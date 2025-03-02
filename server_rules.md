@@ -12,6 +12,7 @@
 11. **Don't talk about** any **members** who are **banned.** If they are banned for most it's most probably because I don't want to hear about them again.
 12. No talk about drugs. Whether illegal, prescribed, medecinal, or whatever this is still a triggering subject.
 13. No jokes about suicide. It's common sense.
+14. No minimodding please.
 
 
 Additional notes you should know:
