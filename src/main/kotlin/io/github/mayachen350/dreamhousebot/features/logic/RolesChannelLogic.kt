@@ -5,8 +5,11 @@ import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
 import io.github.mayachen350.dreamhousebot.configs
 import io.github.mayachen350.dreamhousebot.utils.functionWithLogs
+import kotlinx.coroutines.sync.Mutex
 import me.jakejmattson.discordkt.util.toSnowflake
 import me.jakejmattson.discordkt.util.trimToID
+
+private val mutex = Mutex()
 
 /** Union of the logic for the role assignment channel.**/
 class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val removeEvent: ReactionRemoveEvent?) {

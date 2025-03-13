@@ -1,5 +1,6 @@
 package io.github.mayachen350.dreamhousebot.utils
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -10,7 +11,7 @@ suspend inline fun functionWithLogs(
     crossinline logFunc: suspend () -> Unit
 ): Unit {
     coroutineScope {
-        launch { func() }
-        launch { logFunc() }
+        launch(Dispatchers.IO) { func() }
+        launch(Dispatchers.IO) { logFunc() }
     }
 }
