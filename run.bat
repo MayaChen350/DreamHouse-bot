@@ -1,5 +1,8 @@
 @echo off
 :START
+
+rem TODO: Search for the JAR at the script / command execution root
+
 for %%i in (.\build\libs\DreamHouse-bot-*-all.jar) do (
     java -jar %%i
     echo Bot disconnected.
