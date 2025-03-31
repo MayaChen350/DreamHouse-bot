@@ -1,4 +1,4 @@
-package io.github.mayachen350.dreamhousebot.features.logic
+package io.github.mayachen350.dreamhousebot.features.event.logic
 
 import dev.kord.common.entity.AuditLogEvent
 import dev.kord.core.behavior.GuildBehavior

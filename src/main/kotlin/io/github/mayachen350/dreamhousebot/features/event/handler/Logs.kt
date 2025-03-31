@@ -1,12 +1,12 @@
-package io.github.mayachen350.dreamhousebot.features.handler
+package io.github.mayachen350.dreamhousebot.features.event.handler
 
 import dev.kord.core.behavior.channel.asChannelOf
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.guild.GuildAuditLogEntryCreateEvent
 import dev.kord.core.event.message.MessageUpdateEvent
 import io.github.mayachen350.dreamhousebot.configs
-import io.github.mayachen350.dreamhousebot.features.logic.auditLogLog
-import io.github.mayachen350.dreamhousebot.features.logic.logEditedMessage
+import io.github.mayachen350.dreamhousebot.features.event.logic.auditLogLog
+import io.github.mayachen350.dreamhousebot.features.event.logic.logEditedMessage
 import me.jakejmattson.discordkt.dsl.listeners
 import me.jakejmattson.discordkt.util.toSnowflake
 

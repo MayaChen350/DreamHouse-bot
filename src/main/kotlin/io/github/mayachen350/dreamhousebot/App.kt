@@ -7,29 +7,24 @@ import dev.kord.gateway.ALL
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
 import io.github.cdimascio.dotenv.Dotenv
-import io.github.mayachen350.dreamhousebot.features.handler.logsEventListeners
-import io.github.mayachen350.dreamhousebot.features.handler.moderationCommands
-import io.github.mayachen350.dreamhousebot.features.handler.roleMessageListeners
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import io.github.mayachen350.dreamhousebot.features.command.handler.moderationCommands
+import io.github.mayachen350.dreamhousebot.features.event.handler.logsEventListeners
+import io.github.mayachen350.dreamhousebot.features.event.handler.roleMessageListeners
+import io.github.mayachen350.dreamhousebot.features.extra.BotStatusHandler
+import io.github.mayachen350.dreamhousebot.features.extra.StatusBehavior
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.commands.commands
 import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.locale.Language
 import me.jakejmattson.discordkt.util.toSnowflake
-import java.io.FileInputStream
-
-private lateinit var presenceLines: List<String>
 
 @OptIn(PrivilegedIntent::class)
 fun main(): Unit = runBlocking {
     val token = Dotenv.load().get("BOT_TOKEN")
 
-    with(FileInputStream("src/main/resources/raw/lyrics.txt"))
-    {
-        presenceLines = bufferedReader().readLines()
-        close()
-    }
+    BotStatusHandler.statusBehavior = StatusBehavior.Singer
+
+    BotStatusHandler.configure()
 
     bot(token) {
         configure {
@@ -45,8 +40,6 @@ fun main(): Unit = runBlocking {
             intents = Intents.ALL
         }
 
-//        presence { state = "Real" }
-
         //Configure the locale for this bot.
         localeOf(Language.EN.locale) {
             notFound = "Nothing found!"
@@ -61,20 +54,7 @@ fun main(): Unit = runBlocking {
         }
 
         onStart {
-            launch {
-                var indexLyrics: Int = 0
-                fun incrementIndex() {
-                    if (indexLyrics < presenceLines.size - 1) indexLyrics++ else indexLyrics = 0
-                }
-
-                while (true) {
-                    this@onStart.kord.editPresence {
-                        delay(10000L)
-                        incrementIndex()
-                        state = presenceLines[indexLyrics]
-                    }
-                }
-            }
+            BotStatusHandler.run(this@onStart, this@runBlocking)
         }
     }
     // Register those commands groups:

@@ -1,11 +1,11 @@
-package io.github.mayachen350.dreamhousebot.features.handler
+package io.github.mayachen350.dreamhousebot.features.command.handler
 
 import dev.kord.common.entity.Permission
 import dev.kord.common.entity.Permissions
-import io.github.mayachen350.dreamhousebot.features.logic.banCmdLogic
-import io.github.mayachen350.dreamhousebot.features.logic.kickCmdLogic
-import io.github.mayachen350.dreamhousebot.features.logic.muteCmdLogic
-import io.github.mayachen350.dreamhousebot.features.logic.purgeCmdLogic
+import io.github.mayachen350.dreamhousebot.features.command.logic.banCmdLogic
+import io.github.mayachen350.dreamhousebot.features.command.logic.kickCmdLogic
+import io.github.mayachen350.dreamhousebot.features.command.logic.muteCmdLogic
+import io.github.mayachen350.dreamhousebot.features.command.logic.purgeCmdLogic
 import me.jakejmattson.discordkt.arguments.AnyArg
 import me.jakejmattson.discordkt.arguments.IntegerArg
 import me.jakejmattson.discordkt.arguments.MemberArg

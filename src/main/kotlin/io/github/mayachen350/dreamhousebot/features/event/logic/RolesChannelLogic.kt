@@ -1,9 +1,11 @@
-package io.github.mayachen350.dreamhousebot.features.logic
+package io.github.mayachen350.dreamhousebot.features.event.logic
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
 import io.github.mayachen350.dreamhousebot.configs
+import io.github.mayachen350.dreamhousebot.features.utils.ReactionEvent
+import io.github.mayachen350.dreamhousebot.features.utils.isInChannel
 import io.github.mayachen350.dreamhousebot.utils.functionWithLogs
 import kotlinx.coroutines.sync.Mutex
 import me.jakejmattson.discordkt.util.toSnowflake
@@ -12,18 +14,10 @@ import me.jakejmattson.discordkt.util.trimToID
 private val mutex = Mutex()
 
 /** Union of the logic for the role assignment channel.**/
-class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val removeEvent: ReactionRemoveEvent?) {
-
-    /** Abstraction class making using both type of events easier by sharing common properties and methods. **/
-    private inner class ReactionEvent(addEvent: ReactionAddEvent?, removeEvent: ReactionRemoveEvent?) {
-        val emoji = addEvent?.emoji ?: removeEvent!!.emoji
-        val guild = addEvent?.guild ?: removeEvent!!.guild
-        suspend fun getMessage() = addEvent?.getMessage() ?: removeEvent!!.getMessage()
-        suspend fun getUserAsMember() = addEvent?.getUserAsMember() ?: removeEvent!!.getUserAsMember()
-        suspend fun getUser() = addEvent?.getUser() ?: removeEvent!!.getUser()
-        suspend fun getRole(id: Snowflake) =
-            addEvent?.getGuildOrNull()?.getRole(id) ?: removeEvent!!.getGuildOrNull()!!.getRole(id)
-    }
+class RoleChannelLogic(
+    private val addEvent: ReactionAddEvent? = null,
+    private val removeEvent: ReactionRemoveEvent? = null
+) {
 
     /** Will be an ReactionAddEvent or a ReactionRemoveEvent depending on the context. **/
     private val event: ReactionEvent = ReactionEvent(addEvent, removeEvent)
@@ -81,7 +75,7 @@ class RoleChannelLogic(private val addEvent: ReactionAddEvent?, private val remo
      *
      * The role assignment channel has its id stored in configs\bot_configs.json. **/
     private suspend fun isMessageInRoleChannel(): Boolean =
-        event.getMessage().channelId == configs.roleChannelId.toSnowflake()
+        event.getMessage().isInChannel(configs.roleChannelId.toSnowflake())
 
     /** Toggle the role in parameter depending on if the event is a ReactionAddEvent or a ReactionRemoveEvent. **/
     private suspend fun toggleMemberRole(roleId: Snowflake): Unit {

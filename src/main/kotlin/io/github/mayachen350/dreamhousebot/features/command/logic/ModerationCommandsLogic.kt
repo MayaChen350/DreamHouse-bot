@@ -1,4 +1,4 @@
-package io.github.mayachen350.dreamhousebot.features.logic
+package io.github.mayachen350.dreamhousebot.features.command.logic
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.ban
@@ -7,6 +7,8 @@ import dev.kord.core.behavior.interaction.respondEphemeral
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.entity.Member
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
+import io.github.mayachen350.dreamhousebot.features.event.logic.logModPunishment
+import io.github.mayachen350.dreamhousebot.features.event.logic.logSmth
 import io.github.mayachen350.dreamhousebot.utils.Resources
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take

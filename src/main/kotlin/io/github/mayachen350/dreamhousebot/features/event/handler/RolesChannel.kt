@@ -1,8 +1,8 @@
-package io.github.mayachen350.dreamhousebot.features.handler
+package io.github.mayachen350.dreamhousebot.features.event.handler
 
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
-import io.github.mayachen350.dreamhousebot.features.logic.RoleChannelLogic
+import io.github.mayachen350.dreamhousebot.features.event.logic.RoleChannelLogic
 import me.jakejmattson.discordkt.dsl.listeners
 
 fun roleMessageListeners() = listeners {
