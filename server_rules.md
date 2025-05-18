@@ -1,7 +1,7 @@
 #     RULES
 1. Respect everyone in the server **despite their differences**
 2. Please keep the channels either in **english, french, or frenglish**
-3. This is **not a dating server**. Don't ask me (the answer will always be no im forever linked to <@340534549006254091>) or anyone for a date or **don't try to flirt with anyone** in order to start a relationship. If you seriously try to **flirt with me you will be banned.** You're not going to replace my boyfriend got it?
+3. This is **not a dating server**. Don't ask me or anyone for a date or **don't try to flirt with anyone** in order to start a relationship. If you seriously try to **flirt with me you will be banned.** Or something. I don't know anymore.
 4. Don't be a serial murderer.
 5. If you are accused of something you have the **right of a lawyer and a court** if you **agree to not cause drama** and are **not trying** to prove your **innocence without proof**
 6. If you are **not** in **my** or **my bf's friend list**, we **might ban you**. We don't really want random people.
@@ -13,10 +13,5 @@
 12. No talk about drugs. Whether illegal, prescribed, medecinal, or whatever this is still a triggering subject.
 13. No jokes about suicide. It's common sense.
 14. No minimodding please.
-
-
-Additional notes you should know:
-- Only I have been allowed to call <@340534549006254091> Vince, call him Pat or Patrice
-- Eventually, an open-source bot designed by me will be used to manage the server. You can find it at https://github.com/MayaChen350/DreamHouse-bot
 
 Additional rules might be added in the future
