@@ -24,17 +24,15 @@ suspend fun punishMemberLogic(
     interaction: GuildApplicationCommandInteraction,
     args: Args2<Member, String>,
     userAfterstate: String,
-    memberPunishment: suspend Member.(String) -> Unit
+    memberPunishment: suspend Member.() -> Unit
 ): Unit {
-    val member = args.first
-    val reason = args.second
     val result: String = Resources.BotMessages.MODERATION.load("default_result_answer")
-        .replace("!MEMBERID!", "${member.id}")
+        .replace("!MEMBERID!", "${args.first.id}")
         .replace("!USERAFTERSTATE!", userAfterstate)
-        .replace("!REASON!", reason)
+        .replace("!REASON!", args.second)
 
     with(interaction) {
-        guild.getMember(member.id).memberPunishment(reason)
+        guild.getMember(args.first.id).memberPunishment()
         respondPublic { content = result }
     }
 }

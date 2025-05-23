@@ -19,8 +19,7 @@ fun moderationCommands() = commands(
     val memberToBePunishedArg = MemberArg("user", "User to be punished.")
     val reasonPunishment = AnyArg("reason", "The reason of the punishment.")
     val timeoutPunishmentArg = TimeArg("time", "How long the punishment last.")
-
-
+    
     slash(
         "kick", "Kick someone annoying.",
         requiredPermissions = Permissions(Permission.KickMembers)

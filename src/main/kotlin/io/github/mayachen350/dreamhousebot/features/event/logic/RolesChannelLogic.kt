@@ -6,7 +6,6 @@ import dev.kord.core.event.message.ReactionRemoveEvent
 import io.github.mayachen350.dreamhousebot.configs
 import io.github.mayachen350.dreamhousebot.features.utils.ReactionEvent
 import io.github.mayachen350.dreamhousebot.features.utils.isInChannel
-import io.github.mayachen350.dreamhousebot.utils.functionWithLogs
 import kotlinx.coroutines.sync.Mutex
 import me.jakejmattson.discordkt.util.toSnowflake
 import me.jakejmattson.discordkt.util.trimToID
@@ -29,20 +28,17 @@ class RoleChannelLogic(
             val roleFoundId: Snowflake? = findRole(event.getMessage().content)
 
             if (roleFoundId != null)
-                functionWithLogs(
-                    // Give/Remove the user role based on the emoji
-                    func = { toggleMemberRole(roleFoundId) },
-                    logFunc = {
-                        logSmth(event.guild!!, event.getUser()) {
-                            dreamhouseEmbedLogDefault(event.getUser())
+            // Give/Remove the user role based on the emoji
+                toggleMemberRole(roleFoundId)
 
-                            title =
-                                if (addEvent != null) "Role added via the role channel"
-                                else "Role removed via the role channel"
-                            description = "Role: ${event.getRole(roleFoundId).mention}"
-                        }
-                    }
-                )
+            logSmth(event.guild!!, event.getUser()) {
+                dreamhouseEmbedLogDefault(event.getUser())
+
+                title =
+                    if (addEvent != null) "Role added via the role channel"
+                    else "Role removed via the role channel"
+                description = "Role: ${event.getRole(roleFoundId!!).mention}"
+            }
         }
     }
 

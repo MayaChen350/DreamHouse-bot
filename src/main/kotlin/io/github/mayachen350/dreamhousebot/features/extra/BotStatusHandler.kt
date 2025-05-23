@@ -4,7 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.Discord
-import java.io.FileInputStream
+import kotlin.io.path.Path
+import kotlin.io.path.readText
 
 object BotStatusHandler {
     lateinit var statusBehavior: StatusBehavior
@@ -48,10 +49,7 @@ sealed class StatusBehavior {
 
         override fun configure() {
             super.configure()
-            with(FileInputStream("src/main/resources/raw/lyrics.txt")) {
-                presenceLines = bufferedReader().readLines()
-                close()
-            }
+            presenceLines = Path("src/main/resources/raw/lyrics.txt").readText().lines()
         }
     }
 }
