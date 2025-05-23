@@ -5,8 +5,8 @@ import me.jakejmattson.discordkt.dsl.Data
 
 @Serializable
 data class Configs(
-    var roleChannelId: Long = 1317717883807334400,
-    var logChannelId: Long = 1326237540277157908
+    var roleChannelId: Long = 1373485925295722548,
+    var logChannelId: Long = 1373485926084509788
 ) : Data()
 
 lateinit var configs: Configs

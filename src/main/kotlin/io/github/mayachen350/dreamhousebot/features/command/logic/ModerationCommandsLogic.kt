@@ -9,7 +9,7 @@ import dev.kord.core.entity.Member
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
 import io.github.mayachen350.dreamhousebot.features.event.logic.logModPunishment
 import io.github.mayachen350.dreamhousebot.features.event.logic.logSmth
-import io.github.mayachen350.dreamhousebot.utils.Resources
+import io.github.mayachen350.dreamhousebot.resources.ModerationStrings
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -26,7 +26,7 @@ suspend fun punishMemberLogic(
     userAfterstate: String,
     memberPunishment: suspend Member.() -> Unit
 ): Unit {
-    val result: String = Resources.BotMessages.MODERATION.load("default_result_answer")
+    val result: String = ModerationStrings.DEFAULT_RESULT_ANSWER
         .replace("!MEMBERID!", "${args.first.id}")
         .replace("!USERAFTERSTATE!", userAfterstate)
         .replace("!REASON!", args.second)
@@ -38,7 +38,7 @@ suspend fun punishMemberLogic(
 }
 
 suspend fun kickCmdLogic(interaction: GuildApplicationCommandInteraction, args: Args2<Member, String>): Unit {
-    punishMemberLogic(interaction, args, Resources.BotMessages.MODERATION.load("kick_afterstate")) {
+    punishMemberLogic(interaction, args, ModerationStrings.KICK_AFTERSTATE) {
         kick(reason = args.second)
     }
 
@@ -46,7 +46,7 @@ suspend fun kickCmdLogic(interaction: GuildApplicationCommandInteraction, args: 
 }
 
 suspend fun banCmdLogic(interaction: GuildApplicationCommandInteraction, args: Args2<Member, String>): Unit {
-    punishMemberLogic(interaction, args, Resources.BotMessages.MODERATION.load("ban_afterstate")) {
+    punishMemberLogic(interaction, args, ModerationStrings.BAN_AFTERSTATE) {
         ban {
             this.reason = args.second
             deleteMessageDuration = 7.toDuration(DurationUnit.DAYS)
@@ -60,7 +60,7 @@ suspend fun muteCmdLogic(interaction: GuildApplicationCommandInteraction, args: 
     punishMemberLogic(
         interaction,
         Args2(args.first, args.third),
-        Resources.BotMessages.MODERATION.load("mute_afterstate")
+        ModerationStrings.MUTE_AFTERSTATE
     ) {
         edit {
             // Timeout until Right Now + the time argument for the mute
@@ -79,7 +79,7 @@ suspend fun purgeCmdLogic(interaction: GuildApplicationCommandInteraction, args:
         with(channel) {
             val listOfMessagesToDelete: Iterable<Snowflake> =
                 createMessage(
-                    Resources.BotMessages.MODERATION.load("deleting_messages_msg")
+                    ModerationStrings.DELETING_MESSAGES_MSG
                         .replace("!NBMESSAGES!", numberOfMessages.toString())
                 ).id.run {
                     getMessagesBefore(this).take(numberOfMessages - 1).map { it.id }
@@ -90,7 +90,7 @@ suspend fun purgeCmdLogic(interaction: GuildApplicationCommandInteraction, args:
         }
 
         respondEphemeral {
-            content = Resources.BotMessages.MODERATION.load("deleted_messages_aftermath_ans")
+            content = ModerationStrings.DELETED_MESSAGES_AFTERMATH_ANS
                 .replace("!NBMESSAGES!", numberOfMessages.toString())
         }
     }
