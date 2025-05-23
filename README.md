@@ -1,4 +1,4 @@
-# DreamHouse-bot
+# Chesnay-bot
 
 ![Static Badge](https://img.shields.io/badge/v2.0.20-Kotlin?logo=Kotlin&label=Kotlin&color=%23A97BFF&link=https%3A%2F%2Fkotlinlang.org%2F)
 ![Static Badge](https://img.shields.io/badge/v0.3.1-version?style=flat&label=Version)
@@ -33,12 +33,12 @@ It contains:
 
 Almost all of them are separated in two folders: `logic` and `handler`
 - The `handler` files define the actual **commands** and **listeners** groups. As they're pretty lightweight, you can see them as **contracts**. Things defined there exists for the bot.
-- The `logic` files define all the **actual command and listener logic**. Those can also use some of the `Utils` of the project as I try to minimize the duplication of code. 
+- The `logic` files define all the **actual command and listener logic**. Those can also use some of the `Utils` of the project as I try to minimize the duplication of code.
 
 [Commands](#commands) are also automatically described in the [commands.md](https://github.com/MayaChen350/DreamHouse-bot/blob/v0.3.1/commands.md) file.
 
 ---
- 
+
 ### Listeners/Events
 TODO BEFORE `v0.3.1` MERGE
 
