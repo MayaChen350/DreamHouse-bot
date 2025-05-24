@@ -3,6 +3,7 @@ package io.github.mayachen350.chesnaybot
 import dev.kord.cache.map.MapLikeCollection
 import dev.kord.cache.map.internal.MapEntryCache
 import dev.kord.cache.map.lruLinkedHashMap
+import dev.kord.core.entity.Guild
 import dev.kord.gateway.ALL
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
@@ -18,13 +19,13 @@ import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.locale.Language
 import me.jakejmattson.discordkt.util.toSnowflake
 
+lateinit var getGuild: suspend () -> Guild
+
 @OptIn(PrivilegedIntent::class)
 fun main(): Unit = runBlocking {
     val token = Dotenv.load().get("BOT_TOKEN")
 
     BotStatusHandler.statusBehavior = StatusBehavior.Static
-
-    setup()
 
     bot(token) {
         configure {
@@ -50,6 +51,8 @@ fun main(): Unit = runBlocking {
         }
 
         onStart {
+            setup(this)
+
             BotStatusHandler.run(this@onStart, this@runBlocking)
         }
     }

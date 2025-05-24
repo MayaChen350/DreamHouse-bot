@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.migration)
+    implementation(libs.exposed.dao)
     implementation("mysql:mysql-connector-java:8.0.33")
 
     testImplementation(kotlin("test"))
