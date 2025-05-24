@@ -24,7 +24,7 @@ fun main(): Unit = runBlocking {
 
     BotStatusHandler.statusBehavior = StatusBehavior.Static
 
-    BotStatusHandler.configure()
+    setup()
 
     bot(token) {
         configure {
@@ -50,7 +50,6 @@ fun main(): Unit = runBlocking {
         }
 
         onStart {
-            setup()
             BotStatusHandler.run(this@onStart, this@runBlocking)
         }
     }

@@ -1,11 +1,17 @@
 import java.io.FileInputStream
 import java.util.*
+import kotlin.io.path.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.notExists
 
 plugins {
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.serialization") version "2.1.0"
     id("com.gradleup.shadow") version "9.0.0-beta4"
+
+    id("org.flywaydb.flyway") version "9.22.3"
 }
+
 
 group = "io.github.mayachen350"
 version = Properties().run {
@@ -17,13 +23,14 @@ description = "Official bot of the Salon de Chesnay Discord Server."
 dependencies {
     implementation("me.jakejmattson:DiscordKt:0.24.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0-RC")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
-    implementation("com.h2database:h2:2.2.224")
+    implementation(libs.exposed.migration)
+    implementation("mysql:mysql-connector-java:8.0.33")
+
     testImplementation(kotlin("test"))
 }
 
@@ -38,5 +45,15 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(22)
+}
+
+flyway {
+    Path("${project.projectDir}/src/main/resources/db/migration/").run {
+        if (notExists())
+            createDirectories()
+    }
+
+    url = "jdbc:mysql://192.168.0.188:3306/SalonChesnay"
+    baselineOnMigrate = true
 }
