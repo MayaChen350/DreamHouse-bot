@@ -19,8 +19,8 @@
 | purge    | number_of_message  | Delete a number of messages. |
 
 ## Utility
-| Commands | Arguments | Description             |
-|----------|-----------|-------------------------|
-| Help     | [Command] | Display a help menu.    |
-| info     |           | Bot info for DreamHouse |
+| Commands | Arguments | Description                   |
+|----------|-----------|-------------------------------|
+| Help     | [Command] | Display a help menu.          |
+| info     |           | Bot info for Valet de Chesnay |
 
