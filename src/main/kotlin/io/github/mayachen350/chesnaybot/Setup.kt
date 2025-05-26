@@ -1,15 +1,20 @@
 package io.github.mayachen350.chesnaybot
 
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Member
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.Reaction
+import dev.kord.core.entity.channel.TextChannel
 import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberTable
 import io.github.mayachen350.chesnaybot.backend.ValetService
 import io.github.mayachen350.chesnaybot.features.extra.BotStatusHandler
-import io.github.mayachen350.chesnaybot.features.utils.hasRole
-import kotlinx.coroutines.Dispatchers
+import io.github.mayachen350.chesnaybot.features.system.roleChannel.RoleChannelDispenser.Companion.findRoleFromEmoji
+import io.github.mayachen350.chesnaybot.features.utils.ReactionSimple
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.util.toSnowflake
 import org.jetbrains.exposed.sql.Database
@@ -31,25 +36,93 @@ fun setup(ctx: Discord) = runBlocking {
     launch(Dispatchers.IO) { BotStatusHandler.configure() }
 }
 
-private suspend fun updateRoles() = with(getGuild()) {
-    val rolesOfMember = ValetService.getAllSavedReactionRoles().await()
+@OptIn(ExperimentalCoroutinesApi::class)
+private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
+    with(getGuild()) {
+        val messages = async {
+            (getChannel(configs.roleChannelId.toSnowflake()) as TextChannel)
+                .messages
+        }
 
-    // Remove roles that were removed
-    while (rolesOfMember.any()) {
-        val roleMember = rolesOfMember.poll()
+        val rolesOfMemberQueue = ValetService.getAllSavedReactionRoles().await()
 
-        val member: Member? = members.takeIf { id.value.toLong() == roleMember.userId }?.singleOrNull()
+        val rolesOfMember = rolesOfMemberQueue.toList()
 
-        if (member != null) {
-            if (!member.hasRole(roleMember.roleId.toSnowflake()))
-                ValetService.saveRoleRemoved(member.id.value.toLong(), roleMember.roleId)
-        } else {
-            ValetService.removeAllSavedRolesFromMember(roleMember.userId)
-            rolesOfMember.removeIf { it.id.value.toLong() == roleMember.userId }
+        val reactions: Deferred<List<ReactionSimple>> = async {
+            messages.await().run {
+                val reactions = map { it.reactions.toList() }.toList().flatten()
+
+                reactions.map { reaction: Reaction ->
+                    val reactors = map { message: Message ->
+                        message.getReactors(reaction.emoji)
+                            .map {
+                                message to it.id
+                            }
+                    }.flattenConcat()
+
+                    reactors.map { ReactionSimple(reaction, it.second, it.first) }.toList()
+                }.flatten()
+            }
+        }
+
+        launch {
+            // Remove roles that were removed
+            while (rolesOfMember.any()) {
+                val roleMember = rolesOfMemberQueue.poll()
+
+                val member: Member? = members.takeIf { id.value.toLong() == roleMember.userId }?.singleOrNull()
+
+                if (member != null) {
+                    var roleFound: Snowflake? = null
+                    val hasNoCorrespondingReaction: Boolean = reactions.await().none {
+                        roleFound = findRoleFromEmoji(
+                            it.message.content,
+                            it.reaction.emoji
+                        )
+
+                        it.reactorId == member.id && roleFound == roleMember.roleId.toSnowflake()
+                    }
+
+                    if (hasNoCorrespondingReaction) {
+                        launch { member.removeRole(roleFound!!) }
+                        launch { ValetService.saveRoleRemoved(member.id.value.toLong(), roleMember.roleId) }
+                    } else {
+                        ValetService.removeAllSavedRolesFromMember(roleMember.userId)
+                        rolesOfMemberQueue.removeIf { it.id.value.toLong() == roleMember.userId }
+                    }
+                }
+            }
+
+            // Add roles that were added
+            launch {
+                reactions.await().forEach { reaction ->
+                    val roleFound = async(Dispatchers.Default) {
+                        findRoleFromEmoji(
+                            reaction.message.content,
+                            reaction.reaction.emoji
+                        )!!
+                    }
+
+                    val member: Member? = members.takeIf { id == reaction.reactorId }?.singleOrNull()
+
+                    if (member != null) {
+                        if (rolesOfMember.none { it.roleId.toSnowflake() == roleFound.await() }) {
+                            launch { member.addRole(roleFound.await()) }
+                            launch {
+                                ValetService.saveRoleAdded(
+                                    member.id.value.toLong(),
+                                    roleFound.await().value.toLong()
+                                )
+                            }
+                        }
+                    } else {
+                        ValetService.removeAllSavedRolesFromMember(reaction.reactorId.value.toLong())
+                        rolesOfMemberQueue.removeIf { it.id.value.toLong() == reaction.reactorId.value.toLong() }
+                    }
+                }
+            }
         }
     }
-
-    // Add roles that were added
 }
 
 private fun setupDatabase() {
