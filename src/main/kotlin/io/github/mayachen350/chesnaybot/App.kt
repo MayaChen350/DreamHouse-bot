@@ -51,7 +51,7 @@ fun main(): Unit = runBlocking {
         }
 
         onStart {
-            setup(this)
+            setup(this.kord)
 
             BotStatusHandler.run(this@onStart, this@runBlocking)
         }

@@ -6,6 +6,8 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
+import dev.kord.rest.request.RestRequestException
+import io.github.mayachen350.chesnaybot.backend.ValetService
 import io.github.mayachen350.chesnaybot.configs
 import io.github.mayachen350.chesnaybot.features.event.logic.dreamhouseEmbedLogDefault
 import io.github.mayachen350.chesnaybot.features.event.logic.logSmth
@@ -13,6 +15,7 @@ import io.github.mayachen350.chesnaybot.features.utils.ReactionEvent
 import io.github.mayachen350.chesnaybot.features.utils.hasRole
 import io.github.mayachen350.chesnaybot.features.utils.isInChannel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import me.jakejmattson.discordkt.util.toSnowflake
@@ -57,7 +60,7 @@ class RoleChannelDispenser(
     private val event: ReactionEvent = ReactionEvent(addEvent, removeEvent)
 
     /** The actual discord event listener logic. **/
-    suspend fun execute(): Unit {
+    suspend fun execute(): Unit = withContext(Dispatchers.IO) {
         val message: Message = event.getMessage()
 
         if (message.isInRoleChannel()) {
@@ -65,23 +68,43 @@ class RoleChannelDispenser(
             val roleFoundId: Snowflake? = findRoleFromEmoji(message.content, event.emoji)
 
             if (roleFoundId != null) {
-                // Give/Remove the user role based on the emoji
-                event.getUserAsMember()?.toggleRole(roleFoundId)
+                val member = event.getUserAsMember()
 
-                if (addEvent != null && !event.getUser().isBot)
-                    message.addReaction(event.emoji)
+                if (member != null && ((addEvent != null && !member.hasRole(roleFoundId))
+                            || (addEvent == null && member.hasRole(roleFoundId)))
+                ) {
+                    try {
+                        if (!event.getUser().isBot)
+                            message.addReaction(event.emoji)
 
-                logSmth(event.guild!!, event.getUser()) {
-                    dreamhouseEmbedLogDefault(event.getUser())
+                        // Give/Remove the user role based on the emoji
+                        member.toggleRole(roleFoundId)
 
-                    title =
-                        if (addEvent != null) "Role added via the role channel"
-                        else "Role removed via the role channel"
-                    description = "Role: ${event.getRole(roleFoundId!!).mention}"
+                        logSmth(event.guild!!, event.getUser()) {
+                            dreamhouseEmbedLogDefault(event.getUser())
+
+                            title =
+                                if (addEvent != null) "Role added via the role channel"
+                                else "Role removed via the role channel"
+                            description = "Role: ${event.getRole(roleFoundId).mention}"
+                        }
+                    } catch (e: RestRequestException) {
+                        println("An error happened in the role channe: ${e.error}")
+                        logSmth(event.guild!!, event.getUser()) {
+                            dreamhouseEmbedLogDefault(event.getUser())
+
+                            title =
+                                if (addEvent != null) "Couldn't add role via the role channel"
+                                else "Couldn't remove Role via the role channel"
+                            description = "An error happened: ${e.error?.message ?: e.message}\n" +
+                                    "Role: ${event.getRole(roleFoundId!!).mention}"
+                        }
+                    }
                 }
             }
         }
     }
+
 
     /** Check if the message is in the role assignment channel.
      *
@@ -92,9 +115,11 @@ class RoleChannelDispenser(
     /** Toggle the role in parameter depending on if the event is a ReactionAddEvent or a ReactionRemoveEvent. **/
     private suspend fun Member.toggleRole(roleId: Snowflake) {
         if (addEvent != null) {
-            if (!this.hasRole(roleId))
-                this.addRole(roleId)
-        } else if (!this.hasRole(roleId))
+            this@toggleRole.addRole(roleId)
+            ValetService.saveRoleAdded(this@toggleRole.id.value.toLong(), roleId.value.toLong())
+        } else {
             event.getUserAsMember()?.removeRole(roleId)
+            ValetService.saveRoleRemoved(this@toggleRole.id.value.toLong(), roleId.value.toLong())
+        }
     }
 }

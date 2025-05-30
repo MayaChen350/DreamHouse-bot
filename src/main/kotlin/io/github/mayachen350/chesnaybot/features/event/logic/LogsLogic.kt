@@ -7,6 +7,7 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.AuditLogEntry
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
+import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.effectiveName
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
@@ -56,16 +57,15 @@ suspend fun logSmth(
     displayedUser: User?,
     embedExtra: suspend EmbedBuilder.() -> Unit = { },
 ) {
-    with(guild.getChannelOrNull(configs.logChannelId.toSnowflake())) {
-        if (this != null)
-            asChannelOf<MessageChannel>()
-                .createEmbed {
-                    dreamhouseEmbedLogDefault(displayedUser)
-                    embedExtra()
-                }
-        else
-            println("Could not log the command log! Log channelId undefined or set to an invalid id.")
-    }
+    val channel: GuildChannel? = guild.getChannelOrNull(configs.logChannelId.toSnowflake())
+    if (channel != null) {
+        channel.asChannelOf<MessageChannel>()
+            .createEmbed {
+                dreamhouseEmbedLogDefault(displayedUser)
+                embedExtra()
+            }
+    } else
+        println("Could not log the command log! Log channelId undefined or set to an invalid id.")
 }
 
 /** Logs a moderation punishment in the log channel. **/

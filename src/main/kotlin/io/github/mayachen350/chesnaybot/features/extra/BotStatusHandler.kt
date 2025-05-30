@@ -16,7 +16,11 @@ object BotStatusHandler {
         }
     }
 
-    fun configure() = statusBehavior.configure()
+    fun configure() {
+        println("Configuring bot status!")
+        statusBehavior.configure()
+        println("Bot status configured!")
+    }
 }
 
 sealed class StatusBehavior {
