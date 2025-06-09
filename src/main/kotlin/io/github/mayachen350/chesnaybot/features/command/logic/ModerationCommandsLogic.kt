@@ -8,7 +8,7 @@ import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.entity.Member
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
 import io.github.mayachen350.chesnaybot.features.event.logic.logModPunishment
-import io.github.mayachen350.chesnaybot.features.event.logic.logSmth
+import io.github.mayachen350.chesnaybot.log
 import io.github.mayachen350.chesnaybot.resources.ModerationStrings
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
@@ -95,7 +95,7 @@ suspend fun purgeCmdLogic(interaction: GuildApplicationCommandInteraction, args:
         }
     }
 
-    logSmth(interaction.getGuild(), interaction.user) {
+    log(interaction.getGuild(), interaction.user) {
         title = "Deleted $numberOfMessages messages."
         description = "in <#${interaction.channel.id.value}>"
     }

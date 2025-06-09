@@ -14,6 +14,7 @@ import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
 import dev.kord.core.event.message.MessageUpdateEvent
 import dev.kord.rest.builder.message.EmbedBuilder
 import io.github.mayachen350.chesnaybot.configs
+import io.github.mayachen350.chesnaybot.log
 import io.github.mayachen350.chesnaybot.resources.AuditLogsStrings
 import kotlinx.datetime.Clock
 import me.jakejmattson.discordkt.util.addField
@@ -47,27 +48,6 @@ fun EmbedBuilder.dreamhouseEmbedLogDefault(displayedUser: User?) {
     timestamp = Clock.System.now()
 }
 
-/** Logs an effect in the log channel. This is the base function for log functions.
- *
- *  @param guild The discord guild (the server) parameter required to find the logs channel where to send the logs.
- *  @param displayedUser The user we're going to have information displayed of. Default to the one associated to the interaction.
- *  @param embedExtra Extra embed things to add for functions or anonymous functions.**/
-suspend fun logSmth(
-    guild: GuildBehavior,
-    displayedUser: User?,
-    embedExtra: suspend EmbedBuilder.() -> Unit = { },
-) {
-    val channel: GuildChannel? = guild.getChannelOrNull(configs.logChannelId.toSnowflake())
-    if (channel != null) {
-        channel.asChannelOf<MessageChannel>()
-            .createEmbed {
-                dreamhouseEmbedLogDefault(displayedUser)
-                embedExtra()
-            }
-    } else
-        println("Could not log the command log! Log channelId undefined or set to an invalid id.")
-}
-
 /** Logs a moderation punishment in the log channel. **/
 suspend fun logModPunishment(
     interaction: GuildApplicationCommandInteraction,
@@ -76,7 +56,7 @@ suspend fun logModPunishment(
     punishedMember: User,
     additionalInformation: String = ""
 ) {
-    logSmth(interaction.getGuild(), punishedMember) {
+    log(interaction.getGuild(), punishedMember) {
         title = "has been found guilty."
         description = "Time for punishment!"
         addField(
@@ -107,7 +87,7 @@ suspend fun logEditedMessage(
     event: MessageUpdateEvent
 ) {
     val message: Message = event.getMessage()
-    logSmth(message.getGuild(), message.author) {
+    log(message.getGuild(), message.author) {
         dreamhouseEmbedLogDefault(message.author)
         title = "Message edited"
         description = (event.old?.content ?: "Impossible to fetch") + "->" + message.content

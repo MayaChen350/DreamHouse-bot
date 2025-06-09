@@ -1,27 +1,22 @@
 package io.github.mayachen350.chesnaybot.features.system.roleChannel
 
 import dev.kord.common.entity.Snowflake
-import dev.kord.core.entity.Member
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
 import dev.kord.rest.request.RestRequestException
 import io.github.mayachen350.chesnaybot.backend.ValetService
-import io.github.mayachen350.chesnaybot.configs
 import io.github.mayachen350.chesnaybot.features.event.logic.dreamhouseEmbedLogDefault
-import io.github.mayachen350.chesnaybot.features.event.logic.logSmth
 import io.github.mayachen350.chesnaybot.features.utils.ReactionEvent
 import io.github.mayachen350.chesnaybot.features.utils.hasRole
-import io.github.mayachen350.chesnaybot.features.utils.isInChannel
+import io.github.mayachen350.chesnaybot.features.utils.isInRoleChannel
+import io.github.mayachen350.chesnaybot.log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import me.jakejmattson.discordkt.util.toSnowflake
 import me.jakejmattson.discordkt.util.trimToID
-
-private val mutex = Mutex()
 
 /** Union of the logic for the role assignment channel.**/
 class RoleChannelDispenser(
@@ -33,26 +28,24 @@ class RoleChannelDispenser(
         /** Find the role from the message reacted and returns its snowflake.
          *
          * Return null if not found.**/
-        suspend fun findRoleFromEmoji(messageContent: String, emoji: ReactionEmoji): Snowflake? = with(messageContent) {
-            withContext(Dispatchers.Default) {
-                // Search if the name of the emoji appears on the message
-                if (indexOf(emoji.mention) != -1) {
-                    // Cut the message from when it finds the emoji (also removes '<' if it has)
-                    val firstCut: String = substring(indexOf(emoji.mention) + 1 /* possible '<' char*/)
+        fun findRoleFromEmoji(messageContent: String, emoji: ReactionEmoji): Snowflake? = with(messageContent) {
+            // Search if the name of the emoji appears on the message
+            if (indexOf(emoji.mention) != -1) {
+                // Cut the message from when it finds the emoji (also removes '<' if it has)
+                val firstCut: String = substring(indexOf(emoji.mention) + 1 /* possible '<' char*/)
 
-                    // Get the role id from the first or second '<' character found
-                    val roleId: Snowflake = firstCut.run {
-                        val roleMentionStartIndex = indexOf("<")
-                        val nbCharsRoleMention = 23
+                // Get the role id from the first or second '<' character found
+                val roleId: Snowflake = firstCut.run {
+                    val roleMentionStartIndex = indexOf("<")
+                    val nbCharsRoleMention = 23
 
-                        substring(roleMentionStartIndex, roleMentionStartIndex + nbCharsRoleMention)
-                            .trimToID()
-                            .toSnowflake()
-                    }
+                    substring(roleMentionStartIndex, roleMentionStartIndex + nbCharsRoleMention)
+                        .trimToID()
+                        .toSnowflake()
+                }
 
-                    roleId
-                } else null;
-            }
+                roleId
+            } else null
         }
     }
 
@@ -60,27 +53,35 @@ class RoleChannelDispenser(
     private val event: ReactionEvent = ReactionEvent(addEvent, removeEvent)
 
     /** The actual discord event listener logic. **/
-    suspend fun execute(): Unit = withContext(Dispatchers.IO) {
+    suspend fun execute() = coroutineScope {
         val message: Message = event.getMessage()
 
         if (message.isInRoleChannel()) {
             // Search for the role
-            val roleFoundId: Snowflake? = findRoleFromEmoji(message.content, event.emoji)
+            val roleFoundId: Snowflake? = withContext(Dispatchers.Default) {
+                findRoleFromEmoji(message.content, event.emoji)
+            }
 
             if (roleFoundId != null) {
                 val member = event.getUserAsMember()
 
-                if (member != null && ((addEvent != null && !member.hasRole(roleFoundId))
-                            || (addEvent == null && member.hasRole(roleFoundId)))
-                ) {
+                if (member != null) {
                     try {
-                        if (!event.getUser().isBot)
+                        if (!event.getUser().isBot && event.getMessage().reactions
+                                .filter { it.emoji == event.emoji }
+                                .any { it.selfReacted }
+                        )
                             message.addReaction(event.emoji)
 
-                        // Give/Remove the user role based on the emoji
-                        member.toggleRole(roleFoundId)
+                        if (addEvent != null && !member.hasRole(roleFoundId)) {
+                            member.addRole(roleFoundId)
+                            ValetService.saveRoleAdded(member.id.value.toLong(), roleFoundId.value.toLong())
+                        } else if (addEvent == null && member.hasRole(roleFoundId)) {
+                            event.getUserAsMember()?.removeRole(roleFoundId)
+                            ValetService.saveRoleRemoved(member.id.value.toLong(), roleFoundId.value.toLong())
+                        }
 
-                        logSmth(event.guild!!, event.getUser()) {
+                        log(event.guild!!, event.getUser()) {
                             dreamhouseEmbedLogDefault(event.getUser())
 
                             title =
@@ -90,36 +91,18 @@ class RoleChannelDispenser(
                         }
                     } catch (e: RestRequestException) {
                         println("An error happened in the role channe: ${e.error}")
-                        logSmth(event.guild!!, event.getUser()) {
+                        log(event.guild!!, event.getUser()) {
                             dreamhouseEmbedLogDefault(event.getUser())
 
                             title =
                                 if (addEvent != null) "Couldn't add role via the role channel"
                                 else "Couldn't remove Role via the role channel"
                             description = "An error happened: ${e.error?.message ?: e.message}\n" +
-                                    "Role: ${event.getRole(roleFoundId!!).mention}"
+                                    "Role: ${event.getRole(roleFoundId).mention}"
                         }
                     }
                 }
             }
-        }
-    }
-
-
-    /** Check if the message is in the role assignment channel.
-     *
-     * The role assignment channel has its id stored in configs\bot_configs.json. **/
-    private suspend fun Message.isInRoleChannel(): Boolean =
-        event.getMessage().isInChannel(configs.roleChannelId.toSnowflake())
-
-    /** Toggle the role in parameter depending on if the event is a ReactionAddEvent or a ReactionRemoveEvent. **/
-    private suspend fun Member.toggleRole(roleId: Snowflake) {
-        if (addEvent != null) {
-            this@toggleRole.addRole(roleId)
-            ValetService.saveRoleAdded(this@toggleRole.id.value.toLong(), roleId.value.toLong())
-        } else {
-            event.getUserAsMember()?.removeRole(roleId)
-            ValetService.saveRoleRemoved(this@toggleRole.id.value.toLong(), roleId.value.toLong())
         }
     }
 }

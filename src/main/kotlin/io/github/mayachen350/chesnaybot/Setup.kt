@@ -11,18 +11,12 @@ import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberEntity
 import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberTable
 import io.github.mayachen350.chesnaybot.backend.ValetService
 import io.github.mayachen350.chesnaybot.features.event.logic.dreamhouseEmbedLogDefault
-import io.github.mayachen350.chesnaybot.features.event.logic.logSmth
 import io.github.mayachen350.chesnaybot.features.extra.BotStatusHandler
 import io.github.mayachen350.chesnaybot.features.system.roleChannel.RoleChannelDispenser.Companion.findRoleFromEmoji
 import io.github.mayachen350.chesnaybot.features.utils.ReactionSimple
-import io.github.mayachen350.chesnaybot.resources.DebugProdStrings
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.singleOrNull
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import me.jakejmattson.discordkt.util.toSnowflake
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -32,7 +26,7 @@ import kotlin.io.path.createDirectory
 import kotlin.io.path.notExists
 
 /*Run all the setup and onStart steps*/
-fun setup(ctx: Kord) = runBlocking {
+suspend fun setup(ctx: Kord) = coroutineScope {
     getGuild = { ctx.getGuild(configs.serverId.toSnowflake()) }
 
     setupDatabase()
@@ -42,7 +36,7 @@ fun setup(ctx: Kord) = runBlocking {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
+private suspend fun updateRoles(): Unit = coroutineScope {
     println("Updating roles!")
     with(getGuild()) {
         val messages = async {
@@ -53,9 +47,9 @@ private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
 
         val rolesOfMember = rolesOfMemberQueue.toList()
 
-        val reactions: Deferred<List<ReactionSimple>> = async {
+        val reactions = flow<ReactionSimple> {
             messages.await().run {
-                val reactions = map { it.reactions.toList() }.toList().flatten()
+                val reactions = map { it.reactions.asFlow() }.flattenConcat()
 
                 reactions.map { reaction: Reaction ->
                     val reactors = map { message: Message ->
@@ -65,8 +59,8 @@ private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
                             }
                     }.flattenConcat()
 
-                    reactors.map { ReactionSimple(reaction, it.second, it.first) }.toList()
-                }.flatten()
+                    reactors.map { ReactionSimple(reaction, it.second, it.first) }
+                }.flattenConcat()
             }
         }
 
@@ -81,7 +75,7 @@ private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
 
                 if (member != null) {
                     var roleFound: Snowflake? = null
-                    val hasNoCorrespondingReaction: Boolean = reactions.await().none {
+                    val hasNoCorrespondingReaction: Boolean = reactions.none {
                         roleFound = findRoleFromEmoji(
                             it.message.content,
                             it.reaction.emoji
@@ -93,7 +87,7 @@ private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
                     if (hasNoCorrespondingReaction) {
                         launch {
                             member.removeRole(roleFound!!)
-                            logSmth(this@with, member.asUser()) {
+                            log(this@with, member.asUser()) {
                                 dreamhouseEmbedLogDefault(member.asUser())
 
                                 title = "Role added after restart"
@@ -116,7 +110,7 @@ private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
         launch {
             val membersAffected: MutableSet<Snowflake> = mutableSetOf()
 
-            reactions.await().forEach { reaction ->
+            reactions.collect { reaction ->
                 val roleFound = async(Dispatchers.Default) {
                     findRoleFromEmoji(
                         reaction.message.content,
@@ -130,7 +124,7 @@ private suspend fun updateRoles(): Unit = withContext(Dispatchers.IO) {
                     if (rolesOfMember.none { it.roleId.toSnowflake() == roleFound.await() }) {
                         launch {
                             member.addRole(roleFound.await())
-                            logSmth(this@with, member.asUser()) {
+                            log(this@with, member.asUser()) {
                                 dreamhouseEmbedLogDefault(member.asUser())
 
                                 title = "Role removed after restart"

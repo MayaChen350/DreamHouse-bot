@@ -10,12 +10,6 @@ import kotlin.io.path.readText
 object BotStatusHandler {
     lateinit var statusBehavior: StatusBehavior
 
-    fun run(ctx: Discord, coroutineScope: CoroutineScope) = with(coroutineScope) {
-        launch {
-            statusBehavior.changeStatus(ctx)
-        }
-    }
-
     fun configure() {
         println("Configuring bot status!")
         statusBehavior.configure()
@@ -42,6 +36,7 @@ sealed class StatusBehavior {
         }
 
         override suspend fun changeStatus(ctx: Discord) {
+            println("STARTING BOT STATUS LOOP")
             while (true) {
                 ctx.kord.editPresence {
                     delay(10000L)
