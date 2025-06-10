@@ -11,13 +11,13 @@ fun roleMessageListeners() = listeners {
     on<ReactionAddEvent> {
         if (!this.getUser().isBot)
             withContext(roleChannelThreadContext) {
-                eventQueue.send(RoleChannelDispenser(this@on, null))
+                RoleChannelDispenser(this@on, null).execute()
             }
     }
     on<ReactionRemoveEvent> {
         if (!this.getUser().isBot)
             withContext(roleChannelThreadContext) {
-                eventQueue.send(RoleChannelDispenser(null, this@on))
+                RoleChannelDispenser(null, this@on).execute()
             }
     }
 }
@@ -27,12 +27,9 @@ private val roleChannelThreadContext = newSingleThreadContext("roleChannelContex
 
 private val eventQueue = Channel<RoleChannelDispenser>()
 
-suspend fun startLoop() = coroutineScope {
-    println("STARTING ROLE LOOP")
-    while (true) {
-        val element = eventQueue.tryReceive().getOrNull() ?: break
-        withContext(roleChannelThreadContext) {
-            element.execute()
-        }
-    }
+suspend fun startLoop(): Unit = coroutineScope {
+//    println("STARTING ROLE LOOP")
+//    while (true) {
+//        eventQueue.tryReceive().getOrNull()?.execute()
+//    }
 }

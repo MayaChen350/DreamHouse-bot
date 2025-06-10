@@ -54,9 +54,9 @@ class RoleChannelDispenser(
 
     /** The actual discord event listener logic. **/
     suspend fun execute() = coroutineScope {
-        val message: Message = event.getMessage()
+        val message: Message? = event.getMessageOrNull()
 
-        if (message.isInRoleChannel()) {
+        if (message?.isInRoleChannel() == true) {
             // Search for the role
             val roleFoundId: Snowflake? = withContext(Dispatchers.Default) {
                 findRoleFromEmoji(message.content, event.emoji)

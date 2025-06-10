@@ -12,6 +12,7 @@ class ReactionEvent(
     val emoji = addEvent?.emoji ?: removeEvent!!.emoji
     val guild = addEvent?.guild ?: removeEvent!!.guild
     suspend fun getMessage() = addEvent?.getMessage() ?: removeEvent!!.getMessage()
+    suspend fun getMessageOrNull() = addEvent?.getMessageOrNull() ?: removeEvent!!.getMessageOrNull()
     suspend fun getUserAsMember() = addEvent?.getUserAsMember() ?: removeEvent!!.getUserAsMember()
     suspend fun getUser() = addEvent?.getUser() ?: removeEvent!!.getUser()
     suspend fun getRole(id: Snowflake) =
