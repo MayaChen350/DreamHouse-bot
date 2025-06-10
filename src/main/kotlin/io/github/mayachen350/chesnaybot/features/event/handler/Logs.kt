@@ -11,14 +11,14 @@ import me.jakejmattson.discordkt.dsl.listeners
 import me.jakejmattson.discordkt.util.toSnowflake
 
 fun logsEventListeners() = listeners {
-    on<GuildAuditLogEntryCreateEvent> {
-        with(kord.getChannel(configs.logChannelId.toSnowflake())) {
-            if (this != null)
-                asChannelOf<MessageChannel>().auditLogLog(auditLogEntry)
-            else
-                println("Could not log the audit log! Log channelId undefined or with invalid id.")
-        }
-    }
+//    on<GuildAuditLogEntryCreateEvent> {
+//        with(kord.getChannel(configs.logChannelId.toSnowflake())) {
+//            if (this != null)
+//                asChannelOf<MessageChannel>().auditLogLog(auditLogEntry)
+//            else
+//                println("Could not log the audit log! Log channelId undefined or with invalid id.")
+//        }
+//    }
     on<MessageUpdateEvent> {
         if (this.getMessage().author?.isBot == false)
             logEditedMessage(this)

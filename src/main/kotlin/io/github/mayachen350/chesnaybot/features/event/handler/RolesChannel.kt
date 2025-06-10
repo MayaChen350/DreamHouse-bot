@@ -4,9 +4,9 @@ import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.core.event.message.ReactionRemoveEvent
 import io.github.mayachen350.chesnaybot.features.system.roleChannel.RoleChannelDispenser
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import me.jakejmattson.discordkt.dsl.listeners
 
+@ExperimentalCoroutinesApi
 fun roleMessageListeners() = listeners {
     on<ReactionAddEvent> {
         if (!this.getUser().isBot)
@@ -24,12 +24,3 @@ fun roleMessageListeners() = listeners {
 
 @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
 private val roleChannelThreadContext = newSingleThreadContext("roleChannelContext")
-
-private val eventQueue = Channel<RoleChannelDispenser>()
-
-suspend fun startLoop(): Unit = coroutineScope {
-//    println("STARTING ROLE LOOP")
-//    while (true) {
-//        eventQueue.tryReceive().getOrNull()?.execute()
-//    }
-}

@@ -4,8 +4,6 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.behavior.channel.asChannelOf
 import dev.kord.core.entity.Member
-import dev.kord.core.entity.Message
-import dev.kord.core.entity.Reaction
 import dev.kord.core.entity.channel.TextChannel
 import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberEntity
 import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberTable
@@ -14,6 +12,7 @@ import io.github.mayachen350.chesnaybot.features.event.logic.dreamhouseEmbedLogD
 import io.github.mayachen350.chesnaybot.features.extra.BotStatusHandler
 import io.github.mayachen350.chesnaybot.features.system.roleChannel.RoleChannelDispenser.Companion.findRoleFromEmoji
 import io.github.mayachen350.chesnaybot.features.utils.ReactionSimple
+import io.github.mayachen350.chesnaybot.utils.toSnowflake
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import me.jakejmattson.discordkt.util.toSnowflake
@@ -39,78 +38,72 @@ suspend fun setup(ctx: Kord) = coroutineScope {
 private suspend fun updateRoles(): Unit = coroutineScope {
     println("Updating roles!")
     with(getGuild()) {
-        val messages = async {
-            getChannel(configs.roleChannelId.toSnowflake()).asChannelOf<TextChannel>().messages
-        }
+        val messages = getChannel(configs.roleChannelId.toSnowflake()).asChannelOf<TextChannel>().messages
 
         val rolesOfMemberQueue = ValetService.getAllSavedReactionRoles().await()
 
         val rolesOfMember = rolesOfMemberQueue.toList()
 
-        val reactions = flow<ReactionSimple> {
-            messages.await().run {
-                val reactions = map { it.reactions.asFlow() }.flattenConcat()
+        val reactions = messages.flatMapConcat { message ->
+            message.reactions.map { reaction ->
+                message.getReactors(reaction.emoji).map { reactor ->
+                    ReactionSimple(reaction, reactor.id, message)
+                }
+            }.merge().filter { this.kord.selfId != it.reactorId }
+        }.toList()
 
-                reactions.map { reaction: Reaction ->
-                    val reactors = map { message: Message ->
-                        message.getReactors(reaction.emoji)
-                            .map {
-                                message to it.id
-                            }
-                    }.flattenConcat()
-
-                    reactors.map { ReactionSimple(reaction, it.second, it.first) }
-                }.flattenConcat()
-            }
-        }
-
+        // Remove roles that were removed
         launch {
             val membersAffected: MutableSet<Snowflake> = mutableSetOf()
 
-            // Remove roles that were removed
             while (rolesOfMemberQueue.isNotEmpty()) {
                 val roleMember: RolesGivenToMemberEntity = rolesOfMemberQueue.remove()
 
-                val member: Member? = members.takeIf { id.value.toLong() == roleMember.userId }?.singleOrNull()
+                val member: Member? = members.firstOrNull() { it.id.value == roleMember.userId }
 
                 if (member != null) {
                     var roleFound: Snowflake? = null
                     val hasNoCorrespondingReaction: Boolean = reactions.none {
-                        roleFound = findRoleFromEmoji(
-                            it.message.content,
-                            it.reaction.emoji
-                        )
+                        roleFound = withContext(Dispatchers.Default) {
+                            findRoleFromEmoji(
+                                it.message.content,
+                                it.reaction.emoji
+                            )
+                        }
 
                         it.reactorId == member.id && roleFound == roleMember.roleId.toSnowflake()
                     }
 
                     if (hasNoCorrespondingReaction) {
-                        launch {
-                            member.removeRole(roleFound!!)
-                            log(this@with, member.asUser()) {
-                                dreamhouseEmbedLogDefault(member.asUser())
+                        membersAffected.add(member.id)
+                        withContext(Dispatchers.IO) {
+                            launch {
+                                roleFound?.let { member.removeRole(it) }
+                                log(this@with, member.asUser()) {
+                                    dreamhouseEmbedLogDefault(member.asUser())
 
-                                title = "Role added after restart"
-                                description = "Role: ${getRole(roleFound!!).mention}"
+                                    title = "Role added after restart"
+                                    description = "Role: ${roleFound?.let { getRole(it).mention } ?: "null"}"
+                                }
                             }
-                            membersAffected.add(member.id)
+                            launch { ValetService.saveRoleRemoved(member.id.value, roleMember.roleId) }
                         }
-                        launch { ValetService.saveRoleRemoved(member.id.value.toLong(), roleMember.roleId) }
-                    } else {
-                        ValetService.removeAllSavedRolesFromMember(roleMember.userId)
-                        rolesOfMemberQueue.removeIf { it.id.value.toLong() == roleMember.userId }
                     }
+                } else {
+                    ValetService.removeAllSavedRolesFromMember(roleMember.userId)
+                    rolesOfMemberQueue.removeIf { it.userId == roleMember.userId }
                 }
             }
+
             if (membersAffected.isNotEmpty())
-                println("Added roles to ${membersAffected.count()} members!")
+                println("Removed roles to ${membersAffected.count()} members!")
         }
 
         // Add roles that were added
         launch {
             val membersAffected: MutableSet<Snowflake> = mutableSetOf()
 
-            reactions.collect { reaction ->
+            reactions.forEach { reaction ->
                 val roleFound = async(Dispatchers.Default) {
                     findRoleFromEmoji(
                         reaction.message.content,
@@ -118,10 +111,11 @@ private suspend fun updateRoles(): Unit = coroutineScope {
                     )!!
                 }
 
-                val member: Member? = members.takeIf { id == reaction.reactorId }?.singleOrNull()
+                val member: Member? = members.firstOrNull { it.id == reaction.reactorId }
 
                 if (member != null) {
                     if (rolesOfMember.none { it.roleId.toSnowflake() == roleFound.await() }) {
+                        membersAffected.add(member.id)
                         launch {
                             member.addRole(roleFound.await())
                             log(this@with, member.asUser()) {
@@ -130,22 +124,25 @@ private suspend fun updateRoles(): Unit = coroutineScope {
                                 title = "Role removed after restart"
                                 description = "Role: ${getRole(roleFound.await()).mention}"
                             }
-                            membersAffected.add(member.id)
                         }
                         launch {
                             ValetService.saveRoleAdded(
-                                member.id.value.toLong(),
-                                roleFound.await().value.toLong()
+                                member.id.value,
+                                roleFound.await().value
                             )
                         }
                     }
                 } else {
-                    ValetService.removeAllSavedRolesFromMember(reaction.reactorId.value.toLong())
+                    messages.collect {
+                        it.deleteReaction(reaction.reactorId, reaction.reaction.emoji)
+                    }
+                    ValetService.removeAllSavedRolesFromMember(reaction.reactorId.value)
                     rolesOfMemberQueue.removeIf { it.id.value.toLong() == reaction.reactorId.value.toLong() }
                 }
             }
+
             if (membersAffected.isNotEmpty())
-                println("Removed roles to ${membersAffected.count()} members!")
+                println("Added roles to ${membersAffected.count()} members!")
         }
     }
     println("Roles updated!")

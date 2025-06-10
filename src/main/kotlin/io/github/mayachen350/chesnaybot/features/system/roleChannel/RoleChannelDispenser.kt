@@ -12,9 +12,6 @@ import io.github.mayachen350.chesnaybot.features.utils.ReactionEvent
 import io.github.mayachen350.chesnaybot.features.utils.hasRole
 import io.github.mayachen350.chesnaybot.features.utils.isInRoleChannel
 import io.github.mayachen350.chesnaybot.log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withContext
 import me.jakejmattson.discordkt.util.toSnowflake
 import me.jakejmattson.discordkt.util.trimToID
 
@@ -35,7 +32,7 @@ class RoleChannelDispenser(
                 val firstCut: String = substring(indexOf(emoji.mention) + 1 /* possible '<' char*/)
 
                 // Get the role id from the first or second '<' character found
-                val roleId: Snowflake = firstCut.run {
+                firstCut.run {
                     val roleMentionStartIndex = indexOf("<")
                     val nbCharsRoleMention = 23
 
@@ -43,8 +40,6 @@ class RoleChannelDispenser(
                         .trimToID()
                         .toSnowflake()
                 }
-
-                roleId
             } else null
         }
     }
@@ -53,14 +48,13 @@ class RoleChannelDispenser(
     private val event: ReactionEvent = ReactionEvent(addEvent, removeEvent)
 
     /** The actual discord event listener logic. **/
-    suspend fun execute() = coroutineScope {
+    suspend fun execute() {
         val message: Message? = event.getMessageOrNull()
 
         if (message?.isInRoleChannel() == true) {
             // Search for the role
-            val roleFoundId: Snowflake? = withContext(Dispatchers.Default) {
-                findRoleFromEmoji(message.content, event.emoji)
-            }
+            val roleFoundId: Snowflake? = findRoleFromEmoji(message.content, event.emoji)
+
 
             if (roleFoundId != null) {
                 val member = event.getUserAsMember()
@@ -75,10 +69,10 @@ class RoleChannelDispenser(
 
                         if (addEvent != null && !member.hasRole(roleFoundId)) {
                             member.addRole(roleFoundId)
-                            ValetService.saveRoleAdded(member.id.value.toLong(), roleFoundId.value.toLong())
+                            ValetService.saveRoleAdded(member.id.value, roleFoundId.value)
                         } else if (addEvent == null && member.hasRole(roleFoundId)) {
                             event.getUserAsMember()?.removeRole(roleFoundId)
-                            ValetService.saveRoleRemoved(member.id.value.toLong(), roleFoundId.value.toLong())
+                            ValetService.saveRoleRemoved(member.id.value, roleFoundId.value)
                         }
 
                         log(event.guild!!, event.getUser()) {

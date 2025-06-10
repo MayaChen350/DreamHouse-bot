@@ -28,13 +28,13 @@ object ValetService {
             LinkedList(RolesGivenToMemberEntity.all().toList())
         }
 
-    suspend fun hasAddedUserRole(pUserId: Long, pRoleId: Long): Deferred<Boolean> = suspendedTransactionAsync(db = db) {
+    suspend fun hasAddedUserRole(pUserId: ULong, pRoleId: ULong): Deferred<Boolean> = suspendedTransactionAsync(db = db) {
         RolesGivenToMemberTable.selectAll()
             .where((userId eq pUserId) and (roleId eq pRoleId))
             .any()
     }
 
-    suspend fun saveRoleAdded(pUserId: Long, pRoleId: Long): Unit = withContext(Dispatchers.IO) {
+    suspend fun saveRoleAdded(pUserId: ULong, pRoleId: ULong): Unit = withContext(Dispatchers.IO) {
         transaction(db) {
             RolesGivenToMemberTable.insert {
                 it[userId] = pUserId
@@ -43,7 +43,7 @@ object ValetService {
         }
     }
 
-    suspend fun saveRoleRemoved(pUserId: Long, pRoleId: Long): Unit = withContext(Dispatchers.IO) {
+    suspend fun saveRoleRemoved(pUserId: ULong, pRoleId: ULong): Unit = withContext(Dispatchers.IO) {
         transaction(db) {
             RolesGivenToMemberTable.deleteWhere {
                 (this.userId eq pUserId) and (this.roleId eq pRoleId)
@@ -51,7 +51,7 @@ object ValetService {
         }
     }
 
-    suspend fun removeAllSavedRolesFromMember(pUserId: Long): Unit = withContext(Dispatchers.IO) {
+    suspend fun removeAllSavedRolesFromMember(pUserId: ULong): Unit = withContext(Dispatchers.IO) {
         transaction(db) {
             RolesGivenToMemberTable.deleteWhere {
                 this.userId eq pUserId

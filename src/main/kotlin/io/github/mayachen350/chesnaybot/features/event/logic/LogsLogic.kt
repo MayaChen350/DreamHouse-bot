@@ -1,24 +1,19 @@
 package io.github.mayachen350.chesnaybot.features.event.logic
 
 import dev.kord.common.entity.AuditLogEvent
-import dev.kord.core.behavior.GuildBehavior
-import dev.kord.core.behavior.channel.asChannelOf
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.AuditLogEntry
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.effectiveName
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
 import dev.kord.core.event.message.MessageUpdateEvent
 import dev.kord.rest.builder.message.EmbedBuilder
-import io.github.mayachen350.chesnaybot.configs
 import io.github.mayachen350.chesnaybot.log
 import io.github.mayachen350.chesnaybot.resources.AuditLogsStrings
 import kotlinx.datetime.Clock
 import me.jakejmattson.discordkt.util.addField
-import me.jakejmattson.discordkt.util.toSnowflake
 
 /** Default Embed parameters for DreamHouse Bot's logs.
  *

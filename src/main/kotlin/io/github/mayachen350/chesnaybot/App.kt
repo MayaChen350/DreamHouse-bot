@@ -18,15 +18,10 @@ import io.github.cdimascio.dotenv.Dotenv
 import io.github.mayachen350.chesnaybot.features.command.handler.moderationCommands
 import io.github.mayachen350.chesnaybot.features.event.handler.logsEventListeners
 import io.github.mayachen350.chesnaybot.features.event.handler.roleMessageListeners
-import io.github.mayachen350.chesnaybot.features.event.handler.startLoop
 import io.github.mayachen350.chesnaybot.features.event.logic.dreamhouseEmbedLogDefault
-import io.github.mayachen350.chesnaybot.features.extra.BotStatusHandler
 import io.github.mayachen350.chesnaybot.features.extra.BotStatusHandler.statusBehavior
 import io.github.mayachen350.chesnaybot.features.extra.StatusBehavior
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import me.jakejmattson.discordkt.commands.commands
 import me.jakejmattson.discordkt.dsl.bot
 import me.jakejmattson.discordkt.locale.Language
@@ -34,12 +29,8 @@ import me.jakejmattson.discordkt.util.toSnowflake
 
 lateinit var getGuild: suspend () -> Guild
 
-lateinit var scope: CoroutineScope
-
-@OptIn(PrivilegedIntent::class)
+@OptIn(PrivilegedIntent::class, ExperimentalCoroutinesApi::class)
 fun main(): Unit = runBlocking {
-    scope = this
-
     val token = Dotenv.load().get("BOT_TOKEN")
 
     println("BOT TOKEN OBTAINED")
@@ -78,12 +69,6 @@ fun main(): Unit = runBlocking {
             println("BOT SETUP ENDED")
 
             this@runBlocking.launch(Dispatchers.Default) {
-                startLoop()
-            }
-
-            println("ROLE LOOP STARTED")
-
-            this@runBlocking.launch(Dispatchers.Default) {
                 statusBehavior.changeStatus(this@onStart)
             }
 
@@ -95,13 +80,9 @@ fun main(): Unit = runBlocking {
     helloWorld()
     moderationCommands()
 
-    println("COMMANDS GROUPS REGISTERED")
-
     // Register those listeners:
     roleMessageListeners()
     logsEventListeners()
-
-    println("LISTENERS REGISTERED")
 }
 
 // I use this command a lot for testing
@@ -123,14 +104,16 @@ fun log(
     guild: GuildBehavior,
     displayedUser: User?,
     embedExtra: suspend EmbedBuilder.() -> Unit = { },
-) = scope.launch(Dispatchers.IO) {
-    val channel: GuildChannel? = guild.getChannelOrNull(configs.logChannelId.toSnowflake())
-    if (channel != null) {
-        channel.asChannelOf<MessageChannel>()
-            .createEmbed {
-                dreamhouseEmbedLogDefault(displayedUser)
-                embedExtra()
-            }
-    } else
-        println("Could not log the command log! Log channelId undefined or set to an invalid id.")
+) {
+    GlobalScope.launch(Dispatchers.IO) {
+        val channel: GuildChannel? = guild.getChannelOrNull(configs.logChannelId.toSnowflake())
+        if (channel != null) {
+            channel.asChannelOf<MessageChannel>()
+                .createEmbed {
+                    dreamhouseEmbedLogDefault(displayedUser)
+                    embedExtra()
+                }
+        } else
+            println("Could not log the command log! Log channelId undefined or set to an invalid id.")
+    }.start()
 }
