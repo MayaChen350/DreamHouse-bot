@@ -29,7 +29,7 @@ import me.jakejmattson.discordkt.util.toSnowflake
 
 lateinit var getGuild: suspend () -> Guild
 
-@OptIn(PrivilegedIntent::class, ExperimentalCoroutinesApi::class)
+@OptIn(PrivilegedIntent::class)
 fun main(): Unit = runBlocking {
     val token = Dotenv.load().get("BOT_TOKEN")
 
@@ -100,6 +100,7 @@ fun helloWorld() = commands("Basics") {
  *  @param guild The discord guild (the server) parameter required to find the logs channel where to send the logs.
  *  @param displayedUser The user we're going to have information displayed of. Default to the one associated to the interaction.
  *  @param embedExtra Extra embed things to add for functions or anonymous functions.**/
+@OptIn(DelicateCoroutinesApi::class)
 fun log(
     guild: GuildBehavior,
     displayedUser: User?,

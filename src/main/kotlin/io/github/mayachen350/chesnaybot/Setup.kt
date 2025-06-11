@@ -4,6 +4,7 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.Kord
 import dev.kord.core.behavior.channel.asChannelOf
 import dev.kord.core.entity.Member
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.TextChannel
 import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberEntity
 import io.github.mayachen350.chesnaybot.backend.RolesGivenToMemberTable
@@ -20,6 +21,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectory
 import kotlin.io.path.notExists
@@ -40,112 +42,121 @@ private suspend fun updateRoles(): Unit = coroutineScope {
     with(getGuild()) {
         val messages = getChannel(configs.roleChannelId.toSnowflake()).asChannelOf<TextChannel>().messages
 
-        val rolesOfMemberQueue = ValetService.getAllSavedReactionRoles().await()
-
-        val rolesOfMember = rolesOfMemberQueue.toList()
-
         val reactions = messages.flatMapConcat { message ->
             message.reactions.map { reaction ->
                 message.getReactors(reaction.emoji).map { reactor ->
                     ReactionSimple(reaction, reactor.id, message)
                 }
-            }.merge().filter { this.kord.selfId != it.reactorId }
+            }.merge()
         }.toList()
 
         // Remove roles that were removed
-        launch {
-            val membersAffected: MutableSet<Snowflake> = mutableSetOf()
-
-            while (rolesOfMemberQueue.isNotEmpty()) {
-                val roleMember: RolesGivenToMemberEntity = rolesOfMemberQueue.remove()
-
-                val member: Member? = members.firstOrNull() { it.id.value == roleMember.userId }
-
-                if (member != null) {
-                    var roleFound: Snowflake? = null
-                    val hasNoCorrespondingReaction: Boolean = reactions.none {
-                        roleFound = withContext(Dispatchers.Default) {
-                            findRoleFromEmoji(
-                                it.message.content,
-                                it.reaction.emoji
-                            )
-                        }
-
-                        it.reactorId == member.id && roleFound == roleMember.roleId.toSnowflake()
-                    }
-
-                    if (hasNoCorrespondingReaction) {
-                        membersAffected.add(member.id)
-                        withContext(Dispatchers.IO) {
-                            launch {
-                                roleFound?.let { member.removeRole(it) }
-                                log(this@with, member.asUser()) {
-                                    dreamhouseEmbedLogDefault(member.asUser())
-
-                                    title = "Role added after restart"
-                                    description = "Role: ${roleFound?.let { getRole(it).mention } ?: "null"}"
-                                }
-                            }
-                            launch { ValetService.saveRoleRemoved(member.id.value, roleMember.roleId) }
-                        }
-                    }
-                } else {
-                    ValetService.removeAllSavedRolesFromMember(roleMember.userId)
-                    rolesOfMemberQueue.removeIf { it.userId == roleMember.userId }
-                }
-            }
-
-            if (membersAffected.isNotEmpty())
-                println("Removed roles to ${membersAffected.count()} members!")
-        }
+        removeRoles(ValetService.getAllSavedReactionRoles().await(), members, reactions)
 
         // Add roles that were added
-        launch {
-            val membersAffected: MutableSet<Snowflake> = mutableSetOf()
+        addRoles(ValetService.getAllSavedReactionRoles().await().toList(), members, reactions, messages)
 
-            reactions.forEach { reaction ->
-                val roleFound = async(Dispatchers.Default) {
+        println("Roles updated!")
+    }
+}
+
+private suspend fun removeRoles(
+    rolesOfMemberQueue: Queue<RolesGivenToMemberEntity>,
+    members: Flow<Member>,
+    reactions: List<ReactionSimple>
+) {
+    val membersAffected: MutableSet<Snowflake> = mutableSetOf()
+
+    while (rolesOfMemberQueue.isNotEmpty()) {
+        val roleMember: RolesGivenToMemberEntity = rolesOfMemberQueue.remove()
+
+        val member: Member? = members.firstOrNull { it.id.value == roleMember.userId }
+
+        if (member != null) {
+            var roleFound: Snowflake? = null
+            val hasNoCorrespondingReaction: Boolean = reactions.none {
+                roleFound = withContext(Dispatchers.Default) {
                     findRoleFromEmoji(
-                        reaction.message.content,
-                        reaction.reaction.emoji
-                    )!!
+                        it.message.content,
+                        it.reaction.emoji
+                    )
                 }
 
-                val member: Member? = members.firstOrNull { it.id == reaction.reactorId }
-
-                if (member != null) {
-                    if (rolesOfMember.none { it.roleId.toSnowflake() == roleFound.await() }) {
-                        membersAffected.add(member.id)
-                        launch {
-                            member.addRole(roleFound.await())
-                            log(this@with, member.asUser()) {
-                                dreamhouseEmbedLogDefault(member.asUser())
-
-                                title = "Role removed after restart"
-                                description = "Role: ${getRole(roleFound.await()).mention}"
-                            }
-                        }
-                        launch {
-                            ValetService.saveRoleAdded(
-                                member.id.value,
-                                roleFound.await().value
-                            )
-                        }
-                    }
-                } else {
-                    messages.collect {
-                        it.deleteReaction(reaction.reactorId, reaction.reaction.emoji)
-                    }
-                    ValetService.removeAllSavedRolesFromMember(reaction.reactorId.value)
-                    rolesOfMemberQueue.removeIf { it.id.value.toLong() == reaction.reactorId.value.toLong() }
-                }
+                it.reactorId == member.id && roleFound == roleMember.roleId.toSnowflake()
             }
 
-            if (membersAffected.isNotEmpty())
-                println("Added roles to ${membersAffected.count()} members!")
+            if (hasNoCorrespondingReaction) {
+                membersAffected.add(member.id)
+                coroutineScope {
+                    launch {
+                        roleFound!!.let { member.removeRole(it) }
+                        log(getGuild(), member.asUser()) {
+                            dreamhouseEmbedLogDefault(member.asUser())
+
+                            title = "Role added after restart"
+                            description = "Role: ${roleFound?.let { getGuild().getRole(it).mention } ?: "null"}"
+                        }
+                    }
+                    launch { ValetService.saveRoleRemoved(member.id.value, roleMember.roleId) }
+                }
+            }
+        } else {
+            ValetService.removeAllSavedRolesFromMember(roleMember.userId)
+            rolesOfMemberQueue.removeIf { it.userId == roleMember.userId }
         }
     }
-    println("Roles updated!")
+
+    if (membersAffected.isNotEmpty())
+        println("Removed roles to ${membersAffected.count()} members!")
+}
+
+private suspend fun addRoles(
+    rolesOfMember: List<RolesGivenToMemberEntity>,
+    members: Flow<Member>,
+    reactions: List<ReactionSimple>,
+    messages: Flow<Message>
+) = coroutineScope {
+    val membersAffected: MutableSet<Snowflake> = mutableSetOf()
+
+    reactions.forEach { reaction ->
+        val roleFound = async(Dispatchers.Default) {
+            findRoleFromEmoji(
+                reaction.message.content,
+                reaction.reaction.emoji
+            )!!
+        }
+
+        val member: Member? = members.firstOrNull { it.id == reaction.reactorId }
+
+        if (member != null) {
+            if (rolesOfMember.none { it.roleId == roleFound.await().value && it.userId == member.id.value }) {
+                membersAffected.add(member.id)
+                launch {
+                    member.addRole(roleFound.await())
+                    log(getGuild(), member.asUser()) {
+                        dreamhouseEmbedLogDefault(member.asUser())
+
+                        title = "Role removed after restart"
+                        description = "Role: ${getGuild().getRole(roleFound.await()).mention}"
+                    }
+                }
+                launch {
+                    ValetService.saveRoleAdded(
+                        member.id.value,
+                        roleFound.await().value
+                    )
+                }
+            }
+        } else {
+            messages.collect {
+                it.deleteReaction(reaction.reactorId, reaction.reaction.emoji)
+            }
+            ValetService.removeAllSavedRolesFromMember(reaction.reactorId.value)
+        }
+    }
+
+    if (membersAffected.isNotEmpty())
+        println("Added roles to ${membersAffected.count()} members!")
 }
 
 private fun setupDatabase() {
